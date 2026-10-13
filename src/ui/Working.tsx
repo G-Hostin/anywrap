@@ -1,5 +1,6 @@
 // Working: the receipt prints line by line while the file is read, planned, computed and captioned.
 import type { Step, StepId } from "../pipeline.ts";
+import { sizeLabel } from "../engine/format.ts";
 
 const ORDER: StepId[] = ["read", "plan", "compute", "write"];
 const PENDING: Record<StepId, string> = {
@@ -19,7 +20,6 @@ type Props = {
   onHome: () => void;
 };
 
-const size = (n: number) => (n >= 1048576 ? `${(n / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`);
 
 export function Working({ fileName, fileSize, steps, error, onCancel, onRetry, onHome }: Props) {
   const byId = new Map(steps.map((s) => [s.id, s]));
@@ -31,10 +31,12 @@ export function Working({ fileName, fileSize, steps, error, onCancel, onRetry, o
         <span className="wordmark">Anywrap</span>
       </header>
       <main className="working-main">
+        <div className={`press${error ? " is-stopped" : ""}`}>
+        <div className="printer" aria-hidden="true"><span className="printer-led" /><span className="printer-slot" /></div>
         <div className="slip printing" aria-live="polite">
           <div className="slip-paper">
             <p className="slip-title file-name">{fileName}</p>
-            <p className="slip-sub">{size(fileSize)} · stays in this browser</p>
+            <p className="slip-sub">{fileSize ? `${sizeLabel(fileSize)}, read in this browser` : "Read in this browser"}</p>
             <hr />
             {ORDER.map((id) => {
               const s = byId.get(id);
@@ -57,6 +59,7 @@ export function Working({ fileName, fileSize, steps, error, onCancel, onRetry, o
               </div>
             )}
           </div>
+        </div>
         </div>
         {error ? (
           <div className="working-error" role="alert">

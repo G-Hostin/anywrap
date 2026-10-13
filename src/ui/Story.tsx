@@ -8,6 +8,12 @@ import { PALETTES, pairFor } from "./palettes.ts";
 import { cardToPng, downloadBlob, shareName } from "./share.ts";
 import type { Story } from "../engine/types.ts";
 
+const DownloadIcon = () => (
+  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+    <path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
 const Chevron = ({ dir }: { dir: "left" | "right" }) => (
   <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
     <path d={dir === "left" ? "M15 5l-7 7 7 7" : "M9 5l7 7-7 7"} fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
@@ -70,9 +76,15 @@ export function StoryView({ story, onRestart }: { story: Story; onRestart: () =>
     go(e.clientX - r.left < r.width * 0.3 ? -1 : 1);
   };
 
-  const front = idx === 0 ? <OpenerFace story={story} pair={pair} />
-    : card ? <StatFace card={card} pair={pair} animate={!flipped} fileName={story.file.name} />
-    : <ClosingFace story={story} pair={pair} />;
+  const faceAt = (i: number, live: boolean) => {
+    const p = pairFor(story.plan.palette, i);
+    const c = i > 0 && i < total - 1 ? story.cards[i - 1] : null;
+    return i === 0 ? <OpenerFace story={story} pair={p} />
+      : c ? <StatFace card={c} pair={p} animate={live} fileName={story.file.name} />
+      : <ClosingFace story={story} pair={p} />;
+  };
+  const front = faceAt(idx, !flipped);
+  const saveLabel = saving === "saving" ? "Saving…" : saving === "error" ? "Couldn't save, try again" : "Download card";
   const back = card ? <ReceiptFace card={card} story={story} index={idx} onClose={() => { setFlipped(false); receiptBtn.current?.focus(); }} /> : undefined;
 
   const spoken = flipped && card ? `Receipt. ${card.result.receipt.calc}. ${card.result.receipt.rows} rows used.`
@@ -81,7 +93,7 @@ export function StoryView({ story, onRestart }: { story: Story; onRestart: () =>
     : `${story.persona.name}. ${story.persona.why}`;
 
   return (
-    <div className="stage" ref={stageRef} style={{ ["--stage" as string]: theme.stage }}>
+    <div className="stage" ref={stageRef} style={{ ["--stage" as string]: theme.stage, ["--glow" as string]: pair.bg }}>
       <header className="stage-top">
         <div className="brand">
           <span className="wordmark">Anywrap</span>
@@ -98,22 +110,26 @@ export function StoryView({ story, onRestart }: { story: Story; onRestart: () =>
           <div className="segments" aria-hidden="true">
             {Array.from({ length: total }, (_, i) => <span key={i} className={i <= idx ? "on" : ""} />)}
           </div>
-          <div key={idx} className={`card-enter ${dir > 0 ? "from-right" : "from-left"}`} onClick={onCardClick}>
-            <CardShell front={front} back={back} flipped={flipped} label={`Card ${idx + 1} of ${total}`} />
-          </div>
-          <div className="controls">
-            <div className="nav">
-              <button className="icon" onClick={() => go(-1)} disabled={idx === 0} aria-label="Previous card"><Chevron dir="left" /></button>
-              <span className="count" aria-hidden="true">{idx + 1} / {total}</span>
-              <button className="icon" onClick={() => go(1)} disabled={idx === total - 1} aria-label="Next card"><Chevron dir="right" /></button>
+          <div className="deck">
+            {idx > 0 && <div key={`prev-${idx}`} className="peek prev" aria-hidden="true" onClick={() => go(-1)}>{faceAt(idx - 1, false)}</div>}
+            <div key={idx} className={`card-enter ${dir > 0 ? "from-right" : "from-left"}`} onClick={onCardClick}>
+              <CardShell front={front} back={back} flipped={flipped} label={`Card ${idx + 1} of ${total}`} />
             </div>
-            <button ref={receiptBtn} className={`pill receipt-btn${flipped ? " on" : ""}`} onClick={() => setFlipped((f) => !f)} disabled={!card} aria-pressed={flipped}>
+            {idx < total - 1 && <div key={`next-${idx}`} className="peek next" aria-hidden="true" onClick={() => go(1)}>{faceAt(idx + 1, false)}</div>}
+          </div>
+          <div className="dock" role="toolbar" aria-label="Story controls">
+            <button className="icon" onClick={() => go(-1)} disabled={idx === 0} aria-label="Previous card"><Chevron dir="left" /></button>
+            <span className="count" aria-hidden="true">{idx + 1} / {total}</span>
+            <button className="icon" onClick={() => go(1)} disabled={idx === total - 1} aria-label="Next card"><Chevron dir="right" /></button>
+            <span className="dock-sep" aria-hidden="true" />
+            <button ref={receiptBtn} className={`dock-btn receipt-btn${flipped ? " on" : ""}`} onClick={() => setFlipped((f) => !f)} disabled={!card} aria-pressed={flipped}>
               {flipped ? "Show the card" : "Receipt"}
             </button>
-            <button className="pill" onClick={download} disabled={saving === "saving"}>
-              {saving === "saving" ? "Saving…" : saving === "error" ? "Couldn't save, try again" : "Download card"}
+            <button className="dock-btn save-btn" onClick={download} disabled={saving === "saving"} aria-label={saveLabel} title={saveLabel}>
+              <DownloadIcon /><span className="dock-label">{saveLabel}</span>
             </button>
           </div>
+          <p className="hint" aria-hidden="true">Arrow keys move between cards. R flips the receipt.</p>
           <p className="sr-only" aria-live="polite">{`Card ${idx + 1} of ${total}. ${spoken}`}</p>
         </div>
       </main>

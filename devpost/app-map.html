@@ -42,7 +42,7 @@
 
   <h2>What it is, in four pieces</h2>
   <ul>
-    <li><strong>The browser</strong> reads the export file, writes a short summary, runs the AI's plan on every row and plays the story. The rows never leave it.</li>
+    <li><strong>The browser</strong> reads the export file, writes a short summary, runs the AI's plan on every row and plays the story. The file never leaves it; only the summary (with 5 example rows) does.</li>
     <li><strong>A small local server</strong> (<code>server/</code>) holds the API key and the fixed prompts, and forwards two kinds of small JSON requests to Claude.</li>
     <li><strong>The AI</strong> is called twice: once to plan (what is this file, which calculations from a fixed menu), once to write captions from computed results.</li>
     <li><strong>The number checker</strong> (<code>src/engine/check.ts</code>) rejects any caption number that the calculations didn't produce.</li>

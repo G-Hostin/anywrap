@@ -6,7 +6,7 @@ Built for [Build With AI: Basics](https://learn-ai-basics.devpost.com/) (Devpost
 
 ## How it works
 
-1. **Your browser reads the file** (CSV, TSV, JSON or JSON Lines, up to 50 MB) and writes a short summary: column names, detected types, ranges, a few example values. The rows never leave the browser.
+1. **Your browser reads the file** (CSV, TSV, JSON or JSON Lines, up to 50 MB) and writes a short summary: column names, detected types, ranges, a few example values and 5 example rows. The file itself never leaves the browser.
 2. **The AI picks the story.** Claude receives only the summary (2 to 7 KB for the sample files, one of which is 1.1 MB). It works out what the file is, then returns a plan: which rows to leave out, and 6 to 8 calculations chosen from a fixed menu (total, average, record, top, timeline, busiest day, streak, share, comparison…). The API enforces the plan's format with a JSON schema.
 3. **Your browser computes every number** by running that plan on every row. If a calculation fails, for example on a wrong column name, the errors go back to the AI once for a corrected plan.
 4. **The AI writes the captions** from the computed results only. A checker compares every number in every caption with the results of that card. Numbers written in words ("twelve") and arithmetic words ("twice") are rejected too. A rejected draft is rewritten once; anything that still fails gets a plain caption built from the results.

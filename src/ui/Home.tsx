@@ -105,13 +105,16 @@ export function Home({ health, error, onFile, onSample }: Props) {
             onDragOver={stop}
           >
             <div className="slip-paper">
-              <p className="slip-title">{over ? "Let go to wrap it" : "Drop an export here"}</p>
-              <p className="slip-sub">or click to choose a file</p>
+              <p className="slip-title">
+                {over ? "Let go to wrap it" : <><span className="when-pointer">Drop an export here</span><span className="when-touch">Choose an export file</span></>}
+              </p>
+              <p className="slip-sub when-pointer">or click to choose a file</p>
+              <p className="slip-sub when-touch">CSV or JSON, from any app</p>
               <hr />
               <p className="slip-row"><span>CSV, TSV</span><i /><b>yes</b></p>
               <p className="slip-row"><span>JSON, JSON Lines</span><i /><b>yes</b></p>
               <p className="slip-row"><span>Largest file</span><i /><b>50 MB</b></p>
-              <p className="slip-row"><span>Rows sent to the AI</span><i /><b>none</b></p>
+              <p className="slip-row"><span>Rows sent to the AI</span><i /><b>5 examples</b></p>
             </div>
           </div>
           <input
@@ -129,7 +132,7 @@ export function Home({ health, error, onFile, onSample }: Props) {
               {SAMPLES.map((s) => (
                 <li key={s.file}>
                   <button className="chip" onClick={() => onSample(s)} disabled={!ready}>
-                    <span>{s.label}</span>
+                    <span className="chip-name">{s.label}<em>{s.file.split(".").pop()}</em></span>
                     <small>{s.detail}</small>
                   </button>
                 </li>
@@ -149,7 +152,7 @@ export function Home({ health, error, onFile, onSample }: Props) {
         <ol>
           <li>
             <h3>Your browser reads the file</h3>
-            <p>Every row stays on this computer. Anywrap writes a short summary: column names, value types, ranges, a few examples.</p>
+            <p>The file stays on this computer. Anywrap writes a short summary of it: column names, value types, ranges and 5 example rows.</p>
           </li>
           <li>
             <h3>The AI picks the story</h3>

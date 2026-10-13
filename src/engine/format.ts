@@ -61,3 +61,7 @@ export function fmtGap(n: number, f?: Pick<Field, "type" | "unit">): string {
   if (String(f?.unit ?? "").startsWith("/")) return `${nf(n, Number.isInteger(n) ? 0 : 1)} points`;
   return fmtMeasure(n, f);
 }
+
+/** File and message sizes, written the same way everywhere: "55.1 KB", "1.1 MB". */
+export const sizeLabel = (bytes: number): string =>
+  bytes >= 1048576 ? `${(bytes / 1048576).toFixed(1)} MB` : `${Math.max(0.1, bytes / 1024).toFixed(1)} KB`;

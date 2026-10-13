@@ -1,9 +1,8 @@
 // Side panel: the exact text sent to the AI (and the plan it returned), next to the file's size.
 import { useEffect, useRef } from "react";
-import { nf } from "../engine/format.ts";
+import { nf, sizeLabel as kb } from "../engine/format.ts";
 import type { Story } from "../engine/types.ts";
 
-const kb = (n: number) => (n >= 1048576 ? `${(n / 1048576).toFixed(1)} MB` : `${Math.max(0.1, n / 1024).toFixed(1)} KB`);
 const bytes = (s: string) => new Blob([s]).size;
 
 function Block({ title, note, text }: { title: string; note: string; text: string }) {
@@ -44,12 +43,12 @@ export function AiSaw({ story, onClose }: { story: Story; onClose: () => void })
           <button className="pill" onClick={onClose}>Close</button>
         </header>
         <div className="saw-scale">
-          <div><strong>{kb(story.file.bytes)}</strong><span>your file, {nf(story.file.rows)} rows. Stayed in this browser.</span></div>
+          <div><strong>{kb(story.file.bytes)}</strong><span>your file, {nf(story.file.rows)} rows. It stayed in this browser.</span></div>
           <div><strong>{kb(planBytes)}</strong><span>summary sent to plan the story</span></div>
           <div><strong>{kb(writeBytes)}</strong><span>computed results sent to write captions</span></div>
         </div>
         <p className="saw-lede">
-          The AI never received your rows. It saw a summary (column names, detected types, ranges, a few example values),
+          The AI never received your file. It saw a summary (column names, detected types, ranges and 5 example rows),
           picked calculations from a fixed menu, and wrote captions from the computed results. A checker then compared
           every number in the captions with those results.
           {story.sent.caught.length > 0 && ` On this file it caught ${story.sent.caught.length} problem${story.sent.caught.length > 1 ? "s" : ""} in the first draft of the captions, and they were rewritten.`}

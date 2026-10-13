@@ -52,7 +52,7 @@ export function ReceiptFace({ card, story, index, onClose }: { card: Card; story
             ? "Caption checked: every number in it was found in these results."
             : "Template caption: the AI's wording didn't pass the number check, so Anywrap wrote it from the results."}
         </p>
-        <p className="r-small">Computed in your browser on every row. The AI never saw the rows.</p>
+        <p className="r-small">Computed in your browser on every row. The AI only saw a summary of the file.</p>
       </div>
       <button className="r-close" onClick={(e) => { e.stopPropagation(); onClose(); }}>Back to the card</button>
     </div>

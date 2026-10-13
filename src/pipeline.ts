@@ -3,7 +3,7 @@ import { readText, AnywrapError } from "./engine/read.ts";
 import { summarize, hasSignal } from "./engine/summary.ts";
 import { runPlan } from "./engine/run.ts";
 import { checkCopy, mergeCaption, type Problem } from "./engine/check.ts";
-import { nf } from "./engine/format.ts";
+import { nf, sizeLabel } from "./engine/format.ts";
 import { normalizePlan } from "./engine/plan.ts";
 import type { Plan, Copy, Story, Card, Summary, RunOutput, Table } from "./engine/types.ts";
 
@@ -59,7 +59,7 @@ export async function makeStory(
   onStep({ id: "plan", state: "active", text: "Asking the AI what this file is" });
   const first = await api.plan({ summary }, signal);
   let plan = normalizePlan(first.plan);
-  onStep({ id: "plan", state: "done", text: "The AI read the summary", guess: plan.dataset });
+  onStep({ id: "plan", state: "done", text: `The AI read a ${sizeLabel(new Blob([first.sent]).size)} summary`, guess: plan.dataset });
   stop();
 
   // 3. compute on every row, with one repair round if cards failed
