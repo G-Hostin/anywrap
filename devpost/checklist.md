@@ -87,6 +87,12 @@ Build mode: fast. Gregory delegated the build ("full autonomy, ask me as little 
   - Wrap-up activity: the app map is the take-home guide. No separate tour was run: Gregory delegated the build and asked to be consulted as little as possible. The route stays labeled as a reference, not as a completed tour.
 
 ## Revisions
+- Home made explicit (Gregory, 14 Oct: "make it clearer, so people see right away what it's for", and show 2 or 3 cases that prove how varied the accepted data is):
+  - the headline now says what it does ("Turn any data export into your year in review"), and the hero shows a raw bank CSV becoming three of its cards;
+  - the receipt-slip drop zone became a plain dashed drop zone with an upload icon (it read as a receipt, not as a place to drop a file); the receipt stays on the card backs and the Working screen;
+  - a new section shows three very different files (French sleep diary with semicolons and decimal commas, nested video-history JSON with ads mixed in, a 19-column fitness log): raw excerpt, format tags, how Anywrap reads each one, two real cards, and a button that makes the full story;
+  - "How the numbers stay honest" gained a fourth step (the receipt). Every value on the page comes from the saved Gemini stories.
+  - Evidence: full-page captures at 1440, 1024 and 390 px with no horizontal overflow and no text outside its card; a layout bug found on mobile (raw lines widened each case to 776 px) fixed with `minmax(0, 1fr)` tracks.
 - AI provider switched from Claude to Gemini's free tier (Gregory, 13 Oct, after the final review): he doesn't want his own Claude key behind the project. Only `server/gemini.ts` (renamed from `anthropic.ts`) talks to the provider; prompts, schemas, engine and checker are unchanged in role.
   - Model: `gemini-3.5-flash-lite` with `thinkingLevel: high`. With low thinking it misread the files (it called the sleep diary "sleep-diary.csv" and kept 4 cards). `gemini-3.8-flash`, `3.7-flash`, `3.6-flash` and `3.5-flash` answered 503 "high demand" or timed out that night.
   - Gemini needed a few guard rails that Claude didn't: the normalizer drops card filters that repeat the period, measures on ops that don't use one, and label columns that repeat the measure; seconds declared as plain numbers become durations. The writer must caption every card (a missing caption goes back for a rewrite like a wrong number), and the story keeps at least 6 cards. Prompts ask for plain group names, no causal wording on comparisons, no cards built on free-text notes. Tests: `tests/plan.test.ts`.

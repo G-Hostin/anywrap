@@ -1,4 +1,5 @@
-// Home: what Anywrap does, a drop zone printed like a receipt slip, sample files, and how it keeps numbers honest.
+// Home: says what Anywrap does in one look (a raw export turning into story cards), a drop zone,
+// three very different sample files with the cards they produced, and how the numbers stay honest.
 import { useEffect, useRef, useState, type DragEvent, type KeyboardEvent } from "react";
 import { Fit } from "./Fit.tsx";
 import { pairFor } from "./palettes.ts";
@@ -7,26 +8,110 @@ import type { Palette } from "../engine/types.ts";
 
 export type Health = { state: "loading" } | { state: "ok"; hasKey: boolean; model: string } | { state: "down" };
 
-// Three real cards from the sample files (values computed by Anywrap on those files).
-const SHOWCASE: { palette: Palette; pair: number; kicker: string; big: string; line: string; file: string }[] = [
-  { palette: "neon", pair: 0, kicker: "Your number one channel", big: "Kitchen Lab", line: "23% of everything you watched.", file: "watch-history.json" },
-  { palette: "tide", pair: 1, kicker: "Lights out", big: "11:43 PM", line: "Your average bedtime, across 266 nights.", file: "sleep-diary.csv" },
-  { palette: "ember", pair: 0, kicker: "Total ground covered", big: "2,350 km", line: "Runs, rides, swims and walks in 2025.", file: "running-log.csv" },
+type Mini = { palette: Palette; pair: number; kicker: string; big: string; line: string; file: string };
+
+// Every value below was computed by Anywrap on the sample files (saved Gemini stories, 13 Oct 2026).
+const HERO_FILE = {
+  name: "bank-account.csv",
+  meta: "790 rows · 7 columns",
+  lines: [
+    "Details,Posting Date,Description,Amount,Type,Balance,Check or Slip #",
+    "CREDIT,02/28/2026,ACME ROBOTICS PAYROLL PPD ID: 9001,2380.55,ACH_CREDIT,29059.60,",
+    "DEBIT,02/27/2026,METRO TRANSIT FARE,-2.50,DEBIT_CARD,26679.05,",
+    "DEBIT,02/27/2026,BEAN THERE CAFE #1203 AUSTIN TX,-5.09,DEBIT_CARD,26681.55,",
+    "DEBIT,02/26/2026,ATM WITHDRAWAL 00431 CONGRESS AVE,-100.00,ATM,26686.64,",
+    "DEBIT,02/26/2026,METRO TRANSIT FARE,-2.50,DEBIT_CARD,26786.64,",
+  ],
+};
+const HERO_CARDS: Mini[] = [
+  { palette: "ink", pair: 1, kicker: "The grand total", big: "$36,520", line: "Spent across 651 purchases in 2025.", file: "bank-account.csv" },
+  { palette: "ink", pair: 0, kicker: "Your favorite stop", big: "BEAN THERE CAFE", line: "252 visits, 39% of your purchases.", file: "bank-account.csv" },
+  { palette: "ink", pair: 2, kicker: "Longest streak", big: "65 days", line: "In a row with at least one purchase.", file: "bank-account.csv" },
 ];
 
-function MiniCard({ s, i }: { s: (typeof SHOWCASE)[number]; i: number }) {
+type Case = { sample: string; title: string; tags: string[]; lines: string[]; readAs: string; cards: Mini[] };
+const CASES: Case[] = [
+  {
+    sample: "sleep-diary.csv",
+    title: "A sleep diary",
+    tags: ["CSV", "semicolons", "French headers", "decimal commas"],
+    lines: [
+      "date;coucher;réveil;durée (h);qualité (1-5);réveils nocturnes;café après 16h;notes",
+      '02/03/2025;22:55;07:08;"8,2";4;1;non;voisins bruyants',
+      '03/03/2025;00:01;08:04;"8,1";4;1;non;',
+      '07/03/2025;01:03;09:51;"8,8";4;2;oui;',
+    ],
+    readAs: "One row is one night of sleep",
+    cards: [
+      { palette: "tide", pair: 0, kicker: "Weekday rhythm", big: "Friday", line: "Your longest nights: 7.7 h on average.", file: "sleep-diary.csv" },
+      { palette: "tide", pair: 2, kicker: "The coffee gap", big: "0.8 points", line: "Sleep quality after a coffee past 4 PM: 3.2/5. Without: 4/5.", file: "sleep-diary.csv" },
+    ],
+  },
+  {
+    sample: "watch-history.json",
+    title: "A video watch history",
+    tags: ["JSON", "nested", "ads mixed in", "UTC times"],
+    lines: [
+      '[{ "header": "…", "title": "Watched Ramen from scratch",',
+      '   "subtitles": [{ "name": "Kitchen Lab", "url": "…" }],',
+      '   "time": "2026-01-31T21:49:11.152Z", "products": […] },',
+      ' { "header": "…", "title": "Watched How does GPS actually work?", …',
+    ],
+    readAs: "One item is one video watched, ads left out",
+    cards: [
+      { palette: "neon", pair: 0, kicker: "Top channel", big: "Kitchen Lab", line: "523 videos, more than any other channel.", file: "watch-history.json" },
+      { palette: "neon", pair: 1, kicker: "Daily streak", big: "365", line: "Days in a row with at least one video.", file: "watch-history.json" },
+    ],
+  },
+  {
+    sample: "running-log.csv",
+    title: "A fitness tracker log",
+    tags: ["CSV", "19 columns", "distance twice, in km and m"],
+    lines: [
+      "Activity ID,Activity Date,Activity Name,Activity Type,Activity Description,Elapsed Time,Distance,Max Heart Rate,…",
+      '11873400001,"Nov 1, 2024, 10:02:51 AM",Morning Walk,Walk,legs felt heavy,3446,4.61,178,…',
+      '11873400003,"Nov 5, 2024, 6:48:32 AM",Morning Run,Run,,1870,5.04,178,…',
+      '11873400004,"Nov 7, 2024, 6:16:01 AM",Morning Run,Run,,2009,5.86,174,…',
+    ],
+    readAs: "One row is one workout",
+    cards: [
+      { palette: "ember", pair: 0, kicker: "Ground covered", big: "2,350 km", line: "Across 181 workouts in 2025.", file: "running-log.csv" },
+      { palette: "ember", pair: 2, kicker: "Favorite move", big: "Run", line: "132 of your 181 workouts.", file: "running-log.csv" },
+    ],
+  },
+];
+
+function MiniCard({ s, className }: { s: Mini; className: string }) {
   const pair = pairFor(s.palette, s.pair);
+  const num = /\d/.test(s.big);
   return (
-    <div className={`mini mini-${i}`} aria-hidden="true">
+    <div className={`mini ${className}`} aria-hidden="true">
       <div className="face front stat hero-only" style={{ background: pair.bg, color: pair.fg, ["--fg" as string]: pair.fg }}>
         <p className="kicker">{s.kicker}</p>
-        <Fit className={`hero ${/\d/.test(s.big) ? "is-num" : "is-text"}`} text={s.big} maxFrac={0.5} maxHFrac={0.62} lines={/\d/.test(s.big) ? 1 : 2} />
+        <Fit className={`hero ${num ? "is-num" : "is-text"}`} text={s.big} maxFrac={0.5} maxHFrac={0.62} lines={num ? 1 : 2} />
         <div className="copy"><p className="line">{s.line}</p></div>
         <footer className="card-foot"><span>{s.file}</span><span className="wordmark">Anywrap</span></footer>
       </div>
     </div>
   );
 }
+
+function RawFile({ name, meta, lines, className = "" }: { name: string; meta: string; lines: string[]; className?: string }) {
+  return (
+    <figure className={`raw ${className}`}>
+      <figcaption><span className="raw-name">{name}</span><span>{meta}</span></figcaption>
+      <pre>{lines.join("\n")}</pre>
+    </figure>
+  );
+}
+
+const UploadIcon = () => (
+  <svg viewBox="0 0 48 48" width="44" height="44" aria-hidden="true">
+    <path d="M13 6h15l10 10v26H13z" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round" />
+    <path d="M28 6v10h10" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round" />
+    <path d="M25.5 36V22m0 0-5.5 5.5M25.5 22l5.5 5.5" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
 
 type Props = {
   health: Health;
@@ -39,6 +124,7 @@ export function Home({ health, error, onFile, onSample }: Props) {
   const input = useRef<HTMLInputElement>(null);
   const [over, setOver] = useState(false);
   const ready = health.state === "ok" && health.hasKey;
+  const sampleOf = (file: string) => SAMPLES.find((s) => s.file === file);
 
   // the whole page accepts a dropped file
   useEffect(() => {
@@ -73,7 +159,7 @@ export function Home({ health, error, onFile, onSample }: Props) {
     <div className={`home${over ? " is-over" : ""}`}>
       <header className="home-top">
         <span className="wordmark">Anywrap</span>
-        <span className="home-tag">A year-in-review for any data export</span>
+        <a className="home-link" href="https://github.com/G-Hostin/anywrap" target="_blank" rel="noreferrer">Code on GitHub</a>
       </header>
 
       {health.state === "ok" && !health.hasKey && (
@@ -88,14 +174,15 @@ export function Home({ health, error, onFile, onSample }: Props) {
 
       <main className="home-main">
         <section className="home-left">
-          <h1 className="headline">Every export has a story.</h1>
+          <h1 className="headline">Turn any data export into your year in review.</h1>
           <p className="promise">
-            Drop a CSV or JSON file from any app and flip through your year. The AI picks the story; your browser computes
-            every number, and each one comes with a receipt.
+            Your bank, your fitness tracker, your sleep app, your watch history: every app can give you your data as a file.
+            Drop that CSV or JSON here and flip through your year as story cards. The AI picks the story, your browser
+            computes every number, and each number comes with its receipt.
           </p>
 
           <div
-            className={`slip${ready ? "" : " is-disabled"}`}
+            className={`drop${ready ? "" : " is-disabled"}`}
             role="button"
             tabIndex={ready ? 0 : -1}
             aria-disabled={!ready}
@@ -104,17 +191,12 @@ export function Home({ health, error, onFile, onSample }: Props) {
             onKeyDown={onKey}
             onDragOver={stop}
           >
-            <div className="slip-paper">
-              <p className="slip-title">
-                {over ? "Let go to wrap it" : <><span className="when-pointer">Drop an export here</span><span className="when-touch">Choose an export file</span></>}
+            <UploadIcon />
+            <div>
+              <p className="drop-title">
+                {over ? "Let go to wrap it" : <><span className="when-pointer">Drop your export file here</span><span className="when-touch">Choose your export file</span></>}
               </p>
-              <p className="slip-sub when-pointer">or click to choose a file</p>
-              <p className="slip-sub when-touch">CSV or JSON, from any app</p>
-              <hr />
-              <p className="slip-row"><span>CSV, TSV</span><i /><b>yes</b></p>
-              <p className="slip-row"><span>JSON, JSON Lines</span><i /><b>yes</b></p>
-              <p className="slip-row"><span>Largest file</span><i /><b>50 MB</b></p>
-              <p className="slip-row"><span>Rows sent to the AI</span><i /><b>5 examples</b></p>
+              <p className="drop-sub"><span className="when-pointer">or click to browse. </span>CSV or JSON, up to 50 MB. The file stays on this computer.</p>
             </div>
           </div>
           <input
@@ -127,13 +209,12 @@ export function Home({ health, error, onFile, onSample }: Props) {
           {error && <p className="home-error" role="alert">{error}</p>}
 
           <div className="samples">
-            <p>No export at hand? Try a sample. The data is made up.</p>
+            <p>No export at hand? Try a sample file. The data is made up.</p>
             <ul>
               {SAMPLES.map((s) => (
                 <li key={s.file}>
                   <button className="chip" onClick={() => onSample(s)} disabled={!ready}>
                     <span className="chip-name">{s.label}<em>{s.file.split(".").pop()}</em></span>
-                    <small>{s.detail}</small>
                   </button>
                 </li>
               ))}
@@ -141,11 +222,43 @@ export function Home({ health, error, onFile, onSample }: Props) {
           </div>
         </section>
 
-        <section className="home-right" aria-label="Example cards from the sample files">
-          <div className="fan">{SHOWCASE.map((s, i) => <MiniCard key={s.file} s={s} i={i} />)}</div>
-          <p className="fan-note">Real cards from the sample files</p>
+        <section className="home-right" aria-label="Example: a bank export and three cards Anywrap made from it">
+          <div className="demo">
+            <RawFile name={HERO_FILE.name} meta={HERO_FILE.meta} lines={HERO_FILE.lines} className="raw-hero" />
+            <div className="demo-arrow" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 4v15m0 0-6-6m6 6 6-6" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              <span>becomes</span>
+            </div>
+            <div className="fan">{HERO_CARDS.map((s, i) => <MiniCard key={s.kicker} s={s} className={`mini-${i}`} />)}</div>
+          </div>
+          <p className="fan-note">A made-up bank export, and three of the cards Anywrap made from it</p>
         </section>
       </main>
+
+      <section className="cases" aria-labelledby="cases-title">
+        <div className="cases-head">
+          <h2 id="cases-title">It reads files it has never seen</h2>
+          <p>
+            There is no template per app. Each file below has its own layout, language and quirks. The AI works out what
+            the file is from a short summary, then picks the stats worth telling.
+          </p>
+        </div>
+        <div className="case-list">
+          {CASES.map((c) => {
+            const s = sampleOf(c.sample);
+            return (
+              <article className="case" key={c.sample}>
+                <h3>{c.title}</h3>
+                <ul className="tags" aria-label="File format">{c.tags.map((t) => <li key={t}>{t}</li>)}</ul>
+                <RawFile name={c.sample} meta="raw file" lines={c.lines} />
+                <p className="read-as"><span>Anywrap reads it as</span>{c.readAs}</p>
+                <div className="case-cards">{c.cards.map((m, i) => <MiniCard key={m.kicker} s={m} className={`case-mini case-mini-${i}`} />)}</div>
+                {s && <button className="pill case-try" onClick={() => onSample(s)} disabled={!ready}>Make the full story</button>}
+              </article>
+            );
+          })}
+        </div>
+      </section>
 
       <section className="how" aria-labelledby="how-title">
         <h2 id="how-title">How the numbers stay honest</h2>
@@ -156,11 +269,15 @@ export function Home({ health, error, onFile, onSample }: Props) {
           </li>
           <li>
             <h3>The AI picks the story</h3>
-            <p>From that summary only, it works out what the file is and chooses stats from a fixed menu of calculations.</p>
+            <p>From that summary only, it works out what the file is and chooses stats from a fixed menu of calculations. It never writes a number.</p>
           </li>
           <li>
             <h3>Your browser computes every number</h3>
-            <p>The AI then writes the captions from the results. A checker rejects any number that the calculations didn't produce.</p>
+            <p>The AI then writes the captions from the results, and a checker rejects any number the calculations didn't produce.</p>
+          </li>
+          <li>
+            <h3>Every card has a receipt</h3>
+            <p>Flip a card to see how its number was made: the calculation, the columns, the period and the rows it used.</p>
           </li>
         </ol>
         <p className="how-foot">

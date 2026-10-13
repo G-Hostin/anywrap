@@ -28,7 +28,7 @@ Success: the user flips through a story about their own data, trusts a surprisin
 
 ## Screens and Layout
 Three screens in one page, plus two overlays. No navigation bar.
-- **Home**: headline and one-line promise; drop zone (click to browse); a row of sample chips; a three-step "How it works" strip (Your browser reads the file → The AI picks the story from a summary → Your browser computes every number); a privacy line.
+- **Home**: headline and one-line promise; drop zone (click to browse); a row of sample chips; a hero showing a raw bank export turning into three cards; an "It reads files it has never seen" section with three very different sample files (raw excerpt, how Anywrap reads them, two of their cards); a three-step "How it works" strip (Your browser reads the file → The AI picks the story from a summary → Your browser computes every number); a privacy line.
 - **Working**: centered column with the file card and the step list; the AI's guess animates in when it arrives; "Cancel" link.
 - **Story**: one portrait card (9:16) centered on a dark stage, sized to the window height; progress segments above; previous/next zones on the card's left and right; buttons under the card: Receipt, Download card, What the AI saw, Wrap another file.
 - **Receipt** (overlay on the card): the card flips over to show its back.
