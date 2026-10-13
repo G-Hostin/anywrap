@@ -29,7 +29,7 @@ Build mode: fast. Gregory delegated the build ("full autonomy, ask me as little 
   Learner check: Play the running-log story with the arrow keys and say whether it feels like a Wrapped.
   Commit: `Play the story as poster cards`
 
-- [ ] **3. Every number shows its receipt, and you can see what the AI saw**
+- [x] **3. Every number shows its receipt, and you can see what the AI saw**
   Becomes usable: "Receipt" flips a card to its paper back (calculation, columns, exclusions with counts, filters, rows used, data table, caption check); "What the AI saw" opens the panel with the exact summary and plan, with sizes.
   Why now: this is the trust half of the kernel and the video's key beat; it relies on the card from slice 2.
   PRD ref: `prd.md > Receipts`, `prd.md > What the AI saw`
@@ -83,3 +83,9 @@ Build mode: fast. Gregory delegated the build ("full autonomy, ask me as little 
 - Slice 2: dev servers launched from a shell with `NODE_ENV=production` made Vite run the client in production mode. `--dev` now forces development mode.
 - Slice 2: the writer prompt now asks for a stand-alone first caption line. The bank story had produced "visits to BEAN THERE CAFE…" after the hero number.
 - Slice 2 evidence: 48 cards captured over 5 saved stories at 1280×900 and 390×844 (headless Chrome, `?replay=` dev mode). A DOM check (no element outside its card, no overlapping blocks) passes. The contact sheets were reviewed after one fix: a long text hero ("lofi beats to study to") had spilled over its chart, and hero text is now height-capped. `npm run build` passes.
+- Slice 3: "What the AI saw" shows the JSON indented for reading. The sizes are those of the raw text actually sent, and the test compares the parsed JSON with the POSTed body (equal). PRD criterion reworded to match.
+- Slice 3 evidence (live run of the sleep sample in headless Chrome, real API):
+  - the coffee receipt shows 266 rows used, both group means (4/5 and 3.2/5) and "A difference, not a cause.";
+  - keyboard: Receipt is reached by Tab, Enter flips, Escape flips back and returns focus to the button;
+  - the panel's summary equals the summary POSTed to `/api/plan`: 2.3 KB for an 11.8 KB file;
+  - Escape closes the panel, and the page reported no errors.

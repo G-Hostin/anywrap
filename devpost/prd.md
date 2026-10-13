@@ -106,7 +106,7 @@ Carried from `scope.md > Inspiration & Identity`. Chosen by the agent under dele
 
 ### What the AI saw
 - Shows the exact JSON summary sent and the plan returned, with their sizes and the file size ("2.3 KB sent · file 55 KB").
-- [ ] The panel's "sent" text is byte-for-byte what the server forwarded (same function builds both).
+- [ ] The panel shows exactly what the server forwarded (the same function builds both), with the JSON indented for reading; the sizes are those of the raw text.
 
 ### Download card
 - Renders the current card (front) to a 1080×1920 PNG with a small footer: "Anywrap · computed from 777 rows of transactions_export.csv".
