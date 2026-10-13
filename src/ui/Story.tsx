@@ -5,6 +5,7 @@ import { CardShell, OpenerFace, StatFace, ClosingFace } from "./Card.tsx";
 import { ReceiptFace } from "./Receipt.tsx";
 import { AiSaw } from "./AiSaw.tsx";
 import { PALETTES, pairFor } from "./palettes.ts";
+import { cardToPng, downloadBlob, shareName } from "./share.ts";
 import type { Story } from "../engine/types.ts";
 
 const Chevron = ({ dir }: { dir: "left" | "right" }) => (
@@ -20,6 +21,20 @@ export function StoryView({ story, onRestart }: { story: Story; onRestart: () =>
   const [flipped, setFlipped] = useState(false);
   const [saw, setSaw] = useState(false);
   const receiptBtn = useRef<HTMLButtonElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [saving, setSaving] = useState<"" | "saving" | "error">("");
+
+  const download = async () => {
+    const face = stageRef.current?.querySelector<HTMLElement>(".card .face.front");
+    if (!face || saving === "saving") return;
+    setSaving("saving");
+    try {
+      downloadBlob(await cardToPng(face), shareName(story.file.name, idx));
+      setSaving("");
+    } catch {
+      setSaving("error");
+    }
+  };
 
   const go = useCallback((d: 1 | -1) => {
     setFlipped(false);
@@ -56,7 +71,7 @@ export function StoryView({ story, onRestart }: { story: Story; onRestart: () =>
   };
 
   const front = idx === 0 ? <OpenerFace story={story} pair={pair} />
-    : card ? <StatFace card={card} pair={pair} animate={!flipped} />
+    : card ? <StatFace card={card} pair={pair} animate={!flipped} fileName={story.file.name} />
     : <ClosingFace story={story} pair={pair} />;
   const back = card ? <ReceiptFace card={card} story={story} index={idx} onClose={() => { setFlipped(false); receiptBtn.current?.focus(); }} /> : undefined;
 
@@ -66,7 +81,7 @@ export function StoryView({ story, onRestart }: { story: Story; onRestart: () =>
     : `${story.persona.name}. ${story.persona.why}`;
 
   return (
-    <div className="stage" style={{ ["--stage" as string]: theme.stage }}>
+    <div className="stage" ref={stageRef} style={{ ["--stage" as string]: theme.stage }}>
       <header className="stage-top">
         <div className="brand">
           <span className="wordmark">Anywrap</span>
@@ -94,6 +109,9 @@ export function StoryView({ story, onRestart }: { story: Story; onRestart: () =>
             </div>
             <button ref={receiptBtn} className={`pill receipt-btn${flipped ? " on" : ""}`} onClick={() => setFlipped((f) => !f)} disabled={!card} aria-pressed={flipped}>
               {flipped ? "Show the card" : "Receipt"}
+            </button>
+            <button className="pill" onClick={download} disabled={saving === "saving"}>
+              {saving === "saving" ? "Saving…" : saving === "error" ? "Couldn't save, try again" : "Download card"}
             </button>
           </div>
           <p className="sr-only" aria-live="polite">{`Card ${idx + 1} of ${total}. ${spoken}`}</p>

@@ -179,7 +179,7 @@ Side panel showing the exact strings sent to `/api/plan` and `/api/write` and th
 PRD ref: `prd.md > What the AI saw`.
 
 ### Share image — inside `src/ui/Story.tsx`
-`html-to-image` `toPng` on the front face, with a `pixelRatio` that yields 1080×1920, plus a temporary footer line.
+`html-to-image` `toSvg` on the front face, drawn onto a 1080×1920 canvas (vector, so text stays sharp), with a footer that names the file during export. Code: `src/ui/share.ts`.
 PRD ref: `prd.md > Download card`.
 
 ### Sample files — `scripts/make-samples.ts`, `public/samples/`
@@ -233,6 +233,8 @@ projet/
 │       ├── Receipt.tsx
 │       ├── charts.tsx
 │       ├── AiSaw.tsx
+│       ├── Fit.tsx            # text that grows to fill its box
+│       ├── share.ts           # card → 1080×1920 PNG
 │       └── palettes.ts
 ├── public/samples/            # 5 fabricated exports (generated)
 ├── scripts/
@@ -272,5 +274,5 @@ projet/
 - **Structured outputs for both AI calls** (agent decision): removes malformed-plan failures, like the `op: [object]` plan Haiku produced in the spike.
 - **Sonnet over Haiku**: better plans and captions, about 22 s per story against 16–25 s.
 - **Prompts on the server**: the page can't turn the server into a general proxy for the key.
-- **Genuine uncertainty**: does the browser stay responsive on a 50 MB file? The spike files were all under 1.2 MB. To check during the build with a generated 30 MB file; if the page freezes, move reading and running to a Web Worker.
+- **Genuine uncertainty**: does the browser stay responsive on a 50 MB file? The spike files were all under 1.2 MB. Checked during slice 5 with a generated 30 MB CSV (388,376 rows): 609 ms from drop to the AI request in Chrome, with a longest main-thread task of 530 ms. No Web Worker needed; the Working screen covers the pause.
 - Open: none blocking.

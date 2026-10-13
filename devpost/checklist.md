@@ -49,7 +49,7 @@ Build mode: fast. Gregory delegated the build ("full autonomy, ask me as little 
   Learner check: Drop one of your own exports (a CSV from any app) and see what happens.
   Commit: `Design home and working screens with error states`
 
-- [ ] **5. Download a card, handle big files, document the repo**
+- [x] **5. Download a card, handle big files, document the repo**
   Becomes usable: "Download card" saves a 1080×1920 PNG; a 30 MB file stays usable; the README explains the project and how to run it; the repository has an MIT license.
   Why now: polish and submission prerequisites, after the experience itself is complete.
   PRD ref: `prd.md > Download card`, `prd.md > Reading the file`
@@ -97,3 +97,8 @@ Build mode: fast. Gregory delegated the build ("full autonomy, ask me as little 
   - the Working screen shows the AI's guess mid-run; Cancel returns Home and no story appears later;
   - a production build with no key shows the banner and disables 5/5 samples;
   - a production build with an invalid model shows "The AI provider answered with an error (404)…", and Try again retries.
+- Slice 5: no Web Worker needed (the spec's open uncertainty). On a generated 30 MB bank CSV (388,376 rows), Node with the same engine reads it in 150 ms, summarizes it in 550 ms and runs 6 cards in 330 ms. In Chrome, from file drop to the AI request takes 609 ms, and the longest main-thread task is 530 ms.
+- Slice 5: share images are drawn from an SVG snapshot of the card, scaled to 1080×1920 on a canvas, so text stays sharp. The export footer adds the file name ("Computed from 181 rows of running-log.csv").
+- Slice 5 evidence:
+  - downloaded stat card and closing card are 1080×1920 PNGs (143 KB and 200 KB), checked side by side with the on-screen cards (same fonts, colors, chart and layout);
+  - a fresh copy of the tracked files (no `.env`) runs `npm install`, `npm run build`, `npm test` (18/18), `npm run typecheck` and `npm start` as the README says, and shows the no-key state as expected.

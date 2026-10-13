@@ -115,7 +115,11 @@ button { font: inherit; color: inherit; }
   display: flex; justify-content: space-between; align-items: baseline; gap: 4cqw;
   margin-top: 6cqw; font-size: 3.2cqw; font-weight: 500; opacity: 0.72;
 }
-.card-foot .wordmark { font-size: 3.9cqw; opacity: 1; }
+.card-foot .wordmark { font-size: 3.9cqw; opacity: 1; flex: none; }
+.card-foot > span:first-child, .card-foot .export-only { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.export-only { display: none; }
+.exporting .export-only { display: inline; }
+.exporting .screen-only { display: none; }
 
 /* hero-only cards: the number owns the middle of the card */
 .stat.hero-only .hero { margin-top: auto; }

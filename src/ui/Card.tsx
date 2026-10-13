@@ -35,10 +35,11 @@ function useCountUp(text: string, run: boolean): string {
 
 const faceStyle = (pair: Pair): CSSProperties => ({ background: pair.bg, color: pair.fg, ["--fg" as string]: pair.fg, ["--bg" as string]: pair.bg });
 
-function Foot({ left }: { left: string }) {
+function Foot({ left, exportLeft }: { left: string; exportLeft?: string }) {
   return (
     <footer className="card-foot">
-      <span>{left}</span>
+      <span className={exportLeft ? "screen-only" : ""}>{left}</span>
+      {exportLeft && <span className="export-only">{exportLeft}</span>}
       <span className="wordmark">Anywrap</span>
     </footer>
   );
@@ -54,12 +55,12 @@ export function OpenerFace({ story, pair }: { story: Story; pair: Pair }) {
         <span className="file">{story.file.name}</span>
         <span>{nf(story.rowsInPeriod)} rows · {story.period}</span>
       </div>
-      <Foot left="Tap or press → to start" />
+      <Foot left="Tap or press → to start" exportLeft={story.period} />
     </div>
   );
 }
 
-export function StatFace({ card, pair, animate }: { card: Card; pair: Pair; animate: boolean }) {
+export function StatFace({ card, pair, animate, fileName }: { card: Card; pair: Pair; animate: boolean; fileName: string }) {
   const { caption, result } = card;
   const big = useCountUp(caption.big, animate);
   const numeric = /\d/.test(caption.big) && caption.big.length <= 14;
@@ -74,7 +75,7 @@ export function StatFace({ card, pair, animate }: { card: Card; pair: Pair; anim
         <p className="line">{caption.line}</p>
         {caption.sub && <p className="sub">{caption.sub}</p>}
       </div>
-      <Foot left={`Computed from ${nf(result.receipt.rows)} rows`} />
+      <Foot left={`Computed from ${nf(result.receipt.rows)} rows`} exportLeft={`Computed from ${nf(result.receipt.rows)} rows of ${fileName}`} />
     </div>
   );
 }
