@@ -14,8 +14,10 @@ function useCountUp(text: string, run: boolean): string {
   const [out, setOut] = useState(text);
   useEffect(() => {
     const m = text.match(ONE_NUMBER);
-    if (!run || !m || reduced()) { setOut(text); return; }
-    const token = m[1] + (m[2] ?? "");
+    const token = m ? m[1] + (m[2] ?? "") : "";
+    // a number after a word is part of a label ("Sat, Nov 1", "Week 3"), not an amount: counting it would show "Nov 0"
+    const label = m ? /[A-Za-z]/.test(text.slice(0, text.indexOf(token))) : false;
+    if (!run || !m || label || reduced()) { setOut(text); return; }
     const target = Number(token.replace(/,/g, ""));
     const decimals = m[2] ? m[2].length - 1 : 0;
     const grouped = m[1].includes(",");
@@ -23,7 +25,8 @@ function useCountUp(text: string, run: boolean): string {
     let raf = 0;
     const t0 = performance.now();
     const step = (t: number) => {
-      const p = Math.min(1, (t - t0) / 700);
+      // the first frame's timestamp can come before t0: clamp, or the count starts below zero ("$-796")
+      const p = Math.max(0, Math.min(1, (t - t0) / 700));
       setOut(text.replace(token, fmt(target * (1 - Math.pow(1 - p, 3)))));
       if (p < 1) raf = requestAnimationFrame(step);
     };
