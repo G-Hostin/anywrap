@@ -62,6 +62,11 @@ Build mode: fast. Gregory delegated the build ("full autonomy, ask me as little 
 ## Hands-on Checkpoints
 
 - [ ] Final kick-the-tires exploration and feedback completed (Gregory, once, at the end; early feedback replaced by the agent's own screenshot reviews under the delegation)
+  - Agent pre-check before handing over (13 Oct): live end-to-end in headless Chrome on the running-log sample.
+    - Guess after 16 s, story after 27 s, 9 cards, 7/7 receipts complete.
+    - Download works and "What the AI saw" shows 5.9 KB sent for a 40.7 KB file.
+    - "Wrap another file" returns Home; no page errors.
+  - `npm run check:live`: 5/5 again, with 0 repairs and 0 rewrites.
 
 ## Final Review
 
@@ -70,6 +75,8 @@ Build mode: fast. Gregory delegated the build ("full autonomy, ask me as little 
 ## Code Tour and App Map
 
 - [ ] Learning wrap-up and `devpost/app-map.html` complete
+  - `devpost/app-map.html` generated from commit `4eff39b`. It has a flow diagram, a three-stop reference route (`makeStory` → `case "compare":` → `checkCopy`), "To change this, start here" pointers and a practice to reuse. Every path and search anchor was checked against the source. It renders offline with scripts disabled and makes no network requests.
+  - Wrap-up activity: not done yet. The route is labeled as a reference, not as a completed tour. It waits for Gregory's final review, and he may skip it (concise preference, delegated build).
 
 ## Revisions
 - Slice 1: the API refused the first plan schema ("compiled grammar is too large"): optional properties and union types make the enforced grammar grow too fast. The plan schema now marks every property as required and uses "", [] or 0 for "not used"; the new `src/engine/plan.ts` turns that answer back into a clean plan. Filters carry `value` (text) plus `values` (list). Same behavior, same guarantees.

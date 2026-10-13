@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anywrap · app map</title>
+<style>
+  :root { --ink: #0e0b2a; --paper: #f6f3ec; --pink: #ff4fd8; --mist: #c9c4f2; --line: #ffffff24; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ink); color: #eeeaff; font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 40px 22px 72px; }
+  h1 { font-size: 44px; line-height: 1; letter-spacing: -0.03em; margin: 0 0 10px; }
+  h2 { font-size: 22px; margin: 44px 0 12px; letter-spacing: -0.01em; }
+  p, li { max-width: 68ch; }
+  code, pre { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13.5px; }
+  code { background: #ffffff14; padding: 1px 5px; border-radius: 4px; }
+  .lede { color: #ffffffc7; font-size: 18px; }
+  .meta { color: #ffffff8c; font-size: 14px; }
+  figure { margin: 18px 0 0; background: #07061a; border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+  figcaption { color: #ffffff99; font-size: 14px; margin-top: 8px; }
+  svg text { font: 13px system-ui, sans-serif; fill: #eeeaff; }
+  svg .small { font-size: 11.5px; fill: #ffffffaa; }
+  svg .mono { font-family: ui-monospace, Menlo, monospace; font-size: 11.5px; }
+  ol.route { padding-left: 22px; }
+  ol.route li { margin-bottom: 14px; }
+  .path { font-weight: 700; color: var(--mist); }
+  details { border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; margin-top: 10px; background: #ffffff06; }
+  summary { cursor: pointer; font-weight: 650; }
+  summary:focus-visible, a:focus-visible { outline: 2px solid #fff; outline-offset: 3px; border-radius: 4px; }
+  pre { background: var(--paper); color: #1d1a16; padding: 12px 14px; border-radius: 8px; overflow-x: auto; line-height: 1.45; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  td, th { text-align: left; padding: 8px 10px; border-top: 1px solid var(--line); vertical-align: top; }
+  th { color: #ffffffa8; font-weight: 600; font-size: 13px; }
+  a { color: var(--mist); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Anywrap · app map</h1>
+  <p class="lede">A compact guide to where things live, so the next change starts in the right file.</p>
+  <p class="meta">Snapshot of commit <code>4eff39b</code> (13 Oct 2026). The code can drift after that; trust the source over this page.</p>
+
+  <h2>What it is, in four pieces</h2>
+  <ul>
+    <li><strong>The browser</strong> reads the export file, writes a short summary, runs the AI's plan on every row and plays the story. The rows never leave it.</li>
+    <li><strong>A small local server</strong> (<code>server/</code>) holds the API key and the fixed prompts, and forwards two kinds of small JSON requests to Claude.</li>
+    <li><strong>The AI</strong> is called twice: once to plan (what is this file, which calculations from a fixed menu), once to write captions from computed results.</li>
+    <li><strong>The number checker</strong> (<code>src/engine/check.ts</code>) rejects any caption number that the calculations didn't produce.</li>
+  </ul>
+
+  <h2>One action, followed through the code</h2>
+  <p>You click the <em>Sleep diary</em> sample, and a card reads “0.8 points: late coffee nights scored 3.2/5, other nights 4/5”, with a receipt on its back.</p>
+  <figure>
+    <svg viewBox="0 0 800 300" width="100%" role="img" aria-labelledby="flow-title">
+      <title id="flow-title">From a click to a checked card: browser, local server, AI, then back to the browser</title>
+      <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c9c4f2"/></marker></defs>
+      <rect x="10" y="20" width="250" height="260" rx="12" fill="#ffffff08" stroke="#ffffff30"/>
+      <text x="26" y="44">Browser</text>
+      <text class="mono" x="26" y="78">readText + summarize</text>
+      <text class="small" x="26" y="96">306 rows → 2.3 KB summary</text>
+      <text class="mono" x="26" y="150">runPlan</text>
+      <text class="small" x="26" y="168">every row, facts + receipt</text>
+      <text class="mono" x="26" y="222">checkCopy → StatFace</text>
+      <text class="small" x="26" y="240">numbers checked, card shown</text>
+      <rect x="300" y="60" width="200" height="180" rx="12" fill="#ffffff08" stroke="#ffffff30"/>
+      <text x="316" y="84">Local server</text>
+      <text class="small" x="316" y="102">holds the key and fixed prompts</text>
+      <text class="mono" x="316" y="124">POST /api/plan</text>
+      <text class="mono" x="316" y="198">POST /api/write</text>
+      <rect x="540" y="60" width="250" height="180" rx="12" fill="#ff4fd81a" stroke="#ff4fd866"/>
+      <text x="556" y="84">Claude</text>
+      <text class="small" x="556" y="118">summary → plan (JSON schema)</text>
+      <text class="small" x="556" y="198">facts → captions (JSON schema)</text>
+      <path d="M260 90 H300" stroke="#c9c4f2" stroke-width="1.6" marker-end="url(#a)"/>
+      <path d="M500 112 H540" stroke="#c9c4f2" stroke-width="1.6" marker-end="url(#a)"/>
+      <path d="M540 132 H420 V150 H262" fill="none" stroke="#c9c4f2" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#a)"/>
+      <path d="M260 186 H300" stroke="#c9c4f2" stroke-width="1.6" marker-end="url(#a)"/>
+      <path d="M500 192 H540" stroke="#c9c4f2" stroke-width="1.6" marker-end="url(#a)"/>
+      <path d="M540 212 H420 V226 H262" fill="none" stroke="#c9c4f2" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#a)"/>
+    </svg>
+    <figcaption>Solid arrows: requests. Dashed: answers. The only things that travel to the AI are the summary and the computed facts.</figcaption>
+  </figure>
+
+  <h3>Reference route (three stops)</h3>
+  <p class="meta">A reference route, not a completed tour.</p>
+  <ol class="route">
+    <li><span class="path">src/pipeline.ts</span>, search for <code>export async function makeStory</code>. The whole journey in order: read, summarize, plan (one repair round if a card fails), run, write captions (one rewrite if the checker objects), assemble the story. The <code>onStep</code> calls feed the printing receipt on the Working screen.</li>
+    <li><span class="path">src/engine/run.ts</span>, search for <code>case "compare":</code>. This is where “0.8 points” comes from. The card's average sleep quality is computed for each value of the coffee column, the gap is formatted by <code>fmtGap</code>, and the receipt gets the table of groups and the note “A difference, not a cause.”</li>
+    <li><span class="path">src/engine/check.ts</span>, search for <code>export function checkCopy</code>. Every number token in the caption must appear in that card's facts (or be the period label). Numbers written in words and “twice”, “double”, “half” are rejected. <code>templateCaption</code> is the fallback.</li>
+  </ol>
+
+  <h2>To change this, start here</h2>
+  <table>
+    <tr><th>You want to…</th><th>Start in</th></tr>
+    <tr><td>Add a calculation to the menu</td><td><code>src/engine/types.ts</code> (<code>Op</code>), <code>src/engine/run.ts</code> (<code>runSlide</code> switch), <code>server/prompts.ts</code> (planner text and the <code>op</code> enum in <code>PLAN_SCHEMA</code>), <code>src/engine/check.ts</code> (<code>templateCaption</code>), then a test in <code>tests/engine.test.ts</code>.</td></tr>
+    <tr><td>Change what the AI is told</td><td><code>server/prompts.ts</code>. Keep the schema flat: the API rejected optional fields and unions as “compiled grammar too large”; <code>src/engine/plan.ts</code> cleans the flat answer.</td></tr>
+    <tr><td>Change colors</td><td><code>src/ui/palettes.ts</code> (five named duotone palettes the AI picks from).</td></tr>
+    <tr><td>Change a chart</td><td><code>src/ui/charts.tsx</code> (bars, ranked list, month calendar, ring).</td></tr>
+    <tr><td>Change the receipt</td><td><code>src/ui/Receipt.tsx</code>. Its content comes from <code>receipt</code> in <code>runSlide</code>.</td></tr>
+    <tr><td>Read a new file format</td><td><code>src/engine/read.ts</code> (<code>readText</code>) and <code>src/engine/parse.ts</code> (numbers, dates).</td></tr>
+    <tr><td>Use another model</td><td><code>ANTHROPIC_MODEL=</code> in <code>.env</code>.</td></tr>
+    <tr><td>Add a sample file</td><td><code>scripts/make-samples.ts</code>, then <code>src/samples.ts</code> and the expectations in <code>scripts/check-live.ts</code>.</td></tr>
+  </table>
+
+  <h2>A practice to reuse</h2>
+  <p><strong>Let the AI choose, let code compute, then check the AI's words against the computed results.</strong></p>
+  <details>
+    <summary>Where this shows up in the project</summary>
+    <p>The feasibility spike (13 Oct, outside this repository) found that the AI recognized 5 unfamiliar export formats from a summary alone. The risky part was never the AI's guess; it was trusting numbers in its prose.</p>
+    <p>On the first live run of the full pipeline, the checker caught the writer typing “Four of your books” and a year that wasn't in that card's results. Both were rewritten automatically.</p>
+    <p>Evidence: <code>tests/check.test.ts</code> (the cases), <code>npm run check:live</code> (prints “caught on first pass” lines), and every receipt's last line.</p>
+  </details>
+  <details>
+    <summary>How to apply it elsewhere</summary>
+    <p>Any time an AI summarizes data (invoices, logs, survey results): give it a menu of calculations instead of the raw data, run them in code, and let it phrase only what the code returned. Keep a checker between the prose and the user.</p>
+  </details>
+
+  <h2>Run it again</h2>
+<pre>npm install
+cp .env.example .env     # put your Anthropic key after ANTHROPIC_API_KEY=
+npm run build &amp;&amp; npm start   # http://localhost:5173
+npm test                 # engine and checker, no API calls</pre>
+</main>
+</body>
+</html>
