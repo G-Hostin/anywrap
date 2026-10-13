@@ -39,7 +39,7 @@ Build mode: fast. Gregory delegated the build ("full autonomy, ask me as little 
   Learner check: Open the receipt of the most surprising card and say whether you would trust the number.
   Commit: `Show receipts and what the AI saw`
 
-- [ ] **4. Home, Working and every error state**
+- [x] **4. Home, Working and every error state**
   Becomes usable: designed Home (headline, receipt-slip drop zone, sample chips, how-it-works strip, privacy line), the printing Working screen with the guess line and Cancel, and messages for no key, unsupported file, too little data, API errors and "no story".
   Why now: by now the story is final, so the first screens can promise exactly what it delivers. The error states also need the pipeline from slice 1 to produce them.
   PRD ref: `prd.md > Screens and Layout`, `prd.md > States and Boundaries`, `prd.md > Look and Feel`
@@ -89,3 +89,11 @@ Build mode: fast. Gregory delegated the build ("full autonomy, ask me as little 
   - keyboard: Receipt is reached by Tab, Enter flips, Escape flips back and returns focus to the button;
   - the panel's summary equals the summary POSTed to `/api/plan`: 2.3 KB for an 11.8 KB file;
   - Escape closes the panel, and the page reported no errors.
+- Slice 4: file problems (binary, empty, too small, nothing to tell) go back to Home with the file name and the reason, and no AI call happens. AI or network problems stay on Working with "Try again" and "Choose another file". A missing key disables the drop zone and the samples, and shows how to add the key.
+- Slice 4: the torn receipt edge was drawn upside down (teeth cut into the paper and a white band showed below). Fixed for the Home slip, the Working slip and the card receipts.
+- Slice 4 evidence:
+  - headless Chrome, Home at 1280×900 and 390×844: no horizontal overflow after clipping the fanned cards;
+  - photo.png, empty.csv, tiny.csv (5 rows) and words.csv (no numbers, dates or repeats) each show the right message with zero `/api/plan` or `/api/write` requests;
+  - the Working screen shows the AI's guess mid-run; Cancel returns Home and no story appears later;
+  - a production build with no key shows the banner and disables 5/5 samples;
+  - a production build with an invalid model shows "The AI provider answered with an error (404)…", and Try again retries.
