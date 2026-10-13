@@ -20,7 +20,7 @@ Anywrap has three pieces.
    - "here are the computed results, write the captions".
 
    The prompts live on the server, so the page can't make it ask anything else. It refuses any request over 64 KB, so a whole file can't be sent even by mistake.
-3. **The AI (Claude)** is used twice:
+3. **The AI (Gemini)** is used twice:
    - as a planner: it reads the summary, says what the file is, and picks calculations from a fixed menu;
    - as a writer: it turns computed results into short captions.
 
@@ -36,7 +36,7 @@ PRD ref: `prd.md > The Core Journey`.
    - `engine/read.ts` detects the separator and finds the header: 777 rows, 7 columns.
    - `engine/summary.ts` builds the summary (about 2 KB).
    - The **Working** screen prints "Read 777 rows, 7 columns".
-2. `pipeline.ts` POSTs the summary to `/api/plan`. The server adds the planner prompt and the plan schema, and calls the Anthropic Messages API. The plan comes back: guess, period 2025, amount × −1 in USD, a "Merchant" label cleaned by a regular expression, 8 cards, palette.
+2. `pipeline.ts` POSTs the summary to `/api/plan`. The server adds the planner prompt and the plan schema, and calls the Gemini API. The plan comes back: guess, period 2025, amount × −1 in USD, a "Merchant" label cleaned by a regular expression, 8 cards, palette.
    - **Working** prints the guess: "a bank account export · one row = one transaction".
 3. `engine/run.ts` runs the plan on all 777 rows and returns one result per card: facts, chart series and receipt. If a card errors (unknown column, no rows left), `pipeline.ts` sends the errors and row counts back once to `/api/plan` for a repair, then reruns.
 4. `pipeline.ts` POSTs the facts (not the rows) to `/api/write` and gets the captions.
@@ -50,11 +50,11 @@ PRD ref: `prd.md > The Core Journey`.
 - **html-to-image** (MIT) for the share PNG: renders a DOM node with its web fonts. https://github.com/bubkoo/html-to-image.
 - **Fonts** (OFL, self-hosted with Fontsource, no CDN): Bricolage Grotesque Variable (weight, width and optical-size axes) for everything on the posters and the app; JetBrains Mono Variable for receipts and the "What the AI saw" panel. https://fontsource.org.
 - **Charts**: hand-written SVG (bars, ranked list, year heat-map, ring). A chart library would bring its own look and weight for five simple shapes.
-- **Anthropic Messages API**, model `claude-sonnet-5-5` (overridable with `ANTHROPIC_MODEL`), with structured outputs (`output_config.format` = `json_schema`). https://docs.claude.com/en/docs/build-with-claude/structured-outputs. Checked on 13 Oct with both `claude-sonnet-5-5` and `claude-haiku-5-5`. In the spike, Sonnet needed 0 repairs on 5 files, against 2 for Haiku.
+- **Gemini API** (`generateContent`), model `gemini-3.5-flash-lite` on the free tier (overridable with `GEMINI_MODEL`), with structured outputs (`responseMimeType: application/json` + `responseJsonSchema`) and `thinkingLevel: high`. https://ai.google.dev/gemini-api/docs/structured-output. Switched from Claude on 13 Oct (see Revisions in the checklist).
 - **Tests**: Node's built-in test runner (`node --test`), no extra framework.
 
 ## Where It Runs and How Someone Tries It
-- Requirements: Node 26 or later, an Anthropic API key.
+- Requirements: Node 26 or later, a free Gemini API key (Google AI Studio, no billing).
 - Setup:
   ```
   npm install
@@ -149,7 +149,7 @@ PRD ref: `prd.md > Understanding the file (AI, step 1)`.
 - Drops cards that still fail; fewer than 3 usable cards is a "no story" error.
 - PRD ref: `prd.md > The Core Journey`.
 
-### Local server — `server/index.ts`, `server/anthropic.ts`, `server/prompts.ts`
+### Local server — `server/index.ts`, `server/gemini.ts`, `server/prompts.ts`
 - `GET /api/health` returns `{ hasKey, model }`.
 - `POST /api/plan` takes `{ summary, repair? }`; `POST /api/write` takes `{ facts, problems? }`.
 - Bodies over 64 KB get a 413. Each call has a 60 s timeout. Errors are returned as `{ error }` without upstream headers. The key is loaded from `.env` (`process.loadEnvFile`) and never logged.
@@ -205,12 +205,12 @@ projet/
 ├── package.json               # scripts: dev, build, start, test, typecheck, samples, check:live
 ├── tsconfig.json              # strict, noEmit, allowImportingTsExtensions
 ├── vite.config.ts
-├── .env.example               # ANTHROPIC_API_KEY=, ANTHROPIC_MODEL=
+├── .env.example               # GEMINI_API_KEY=, GEMINI_MODEL=
 ├── LICENSE                    # MIT
 ├── README.md                  # what it is, run instructions, how the kernel works
 ├── server/
 │   ├── index.ts               # node:http server, routes, static or Vite middleware
-│   ├── anthropic.ts           # Messages API call with schema, timeout, clean errors
+│   ├── gemini.ts              # generateContent call with schema, timeout, retry on 429/503, clean errors
 │   └── prompts.ts             # planner and writer prompts, JSON schemas
 ├── src/
 │   ├── main.tsx
@@ -248,13 +248,14 @@ projet/
 ```
 
 ## External Services and Dependencies
-**Anthropic Messages API**: `POST https://api.anthropic.com/v1/messages`.
-- Headers: `x-api-key`, `anthropic-version: 2023-06-01`.
-- Body: `{ model, max_tokens, system, messages: [{ role: "user", content }], output_config: { format: { type: "json_schema", schema } } }`.
-- Response: the text block holds the JSON matching the schema.
-- Schema limits: objects need `additionalProperties: false`; no numeric or length constraints; required properties come first. The compiled grammar has a size limit: the first plan schema (optional fields, `anyOf` unions) was rejected, and the flat all-required version works (see `Plan normalizer`).
-- Cost: about 5k input and 3k output tokens per story with Sonnet (spike measurement), a few cents.
-- Key: the owner's existing Anthropic key, in `.env`, never committed.
+**Gemini API**: `POST https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent`.
+- Header: `x-goog-api-key`.
+- Body: `{ systemInstruction, contents: [{ role: "user", parts: [{ text }] }], generationConfig: { responseMimeType: "application/json", responseJsonSchema: schema, maxOutputTokens, thinkingConfig: { thinkingLevel } } }`.
+- Response: `candidates[0].content.parts` hold the JSON text (thought parts are skipped).
+- The flat, all-required schema written for the first provider works unchanged (see `Plan normalizer`).
+- Cost: free tier. Two requests per story; the free daily quota of the default model covers dozens of stories. 429 and 503 answers are retried twice, 5 and 10 s apart.
+- Privacy: on the free tier, Google may use requests to improve its models. Only the summary (with 5 example rows) and the computed results are sent, never the file.
+- Key: a free key created for this project in Google AI Studio, in `.env`, never committed.
 
 **Fontsource packages and html-to-image**: bundled at build time; no network at runtime besides the API.
 
@@ -262,7 +263,7 @@ projet/
 - **The AI plans a calculation that can't run** (wrong column, filter that removes everything) → one repair call with the error list and row counts; cards still failing are dropped; fewer than 3 cards → "Anywrap couldn't find a story in this file", with the reasons.
 - **A caption contains a number not in the results** → one retry with the problems; then a template caption marked "Template caption" on the receipt.
 - **Odd file** (unknown date order, decimal comma, nested JSON) → the summary shows the detected types and the AI can override units, scale, order and decimal style in `fields`. If the reader finds no usable table → message on Home, nothing sent.
-- **API down, no key, or slow** → banner on Home (no key) or error with "Try again" on Working (60 s timeout).
+- **API down, no key, slow or out of free quota** → banner on Home (no key) or error with "Try again" on Working (90 s timeout; a used-up quota says so).
 
 ## What Was Simplified and Why
 - **One file at a time** instead of whole Takeout archives: one file proves the kernel; archives mean unzipping and merging tables.
@@ -272,8 +273,8 @@ projet/
 
 ## Decisions and Open Issues
 - **Fixed menu of calculations instead of AI-written code** (agent decision, core of the kernel). Tradeoff: some stories the AI could imagine can't be expressed. The spike showed the menu covers the 5 very different files.
-- **Structured outputs for both AI calls** (agent decision): removes malformed-plan failures, like the `op: [object]` plan Haiku produced in the spike.
-- **Sonnet over Haiku**: better plans and captions, about 22 s per story against 16–25 s.
+- **Structured outputs for both AI calls** (agent decision): removes malformed-plan failures, like the `op: [object]` plan a small model produced in the spike.
+- **Gemini free tier instead of Claude** (Gregory, 13 Oct): no paid key behind the project. `gemini-3.5-flash-lite` with high thinking was the only free model that answered reliably on launch night (the Flash models returned 503 "high demand" or timed out); with low thinking it misread the files.
 - **Prompts on the server**: the page can't turn the server into a general proxy for the key.
 - **Genuine uncertainty**: does the browser stay responsive on a 50 MB file? The spike files were all under 1.2 MB. Checked during slice 5 with a generated 30 MB CSV (388,376 rows): 609 ms from drop to the AI request in Chrome, with a longest main-thread task of 530 ms. No Web Worker needed; the Working screen covers the pause.
 - Open: none blocking.

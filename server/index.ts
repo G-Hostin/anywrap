@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(fileURLToPath(new URL("..", import.meta.url)));
 if (existsSync(join(ROOT, ".env"))) process.loadEnvFile(join(ROOT, ".env"));
-const { MODEL, hasKey, plan, write, prompts, planUserMessage, writeUserMessage, UpstreamError } = await import("./anthropic.ts");
+const { MODEL, hasKey, plan, write, prompts, planUserMessage, writeUserMessage, UpstreamError } = await import("./gemini.ts");
 
 const DEV = process.argv.includes("--dev");
 const PORT = Number(process.env.PORT || 5173);
@@ -101,5 +101,5 @@ createServer((req, res) => {
   if (vite) return vite.middlewares(req, res, () => { res.writeHead(404); res.end(); });
   return void serveStatic(res, path);
 }).listen(PORT, "127.0.0.1", () => {
-  console.log(`Anywrap ${DEV ? "(dev) " : ""}on http://localhost:${PORT}  ·  model ${MODEL}  ·  ${hasKey() ? "API key loaded" : "NO API KEY: add ANTHROPIC_API_KEY to .env"}`);
+  console.log(`Anywrap ${DEV ? "(dev) " : ""}on http://localhost:${PORT}  ·  model ${MODEL}  ·  ${hasKey() ? "API key loaded" : "NO API KEY: add GEMINI_API_KEY to .env"}`);
 });

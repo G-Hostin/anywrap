@@ -78,8 +78,8 @@ export function Home({ health, error, onFile, onSample }: Props) {
 
       {health.state === "ok" && !health.hasKey && (
         <div className="banner" role="alert">
-          <strong>Add an Anthropic API key to start.</strong> Create a file named <code>.env</code> next to <code>package.json</code> with
-          the line <code>ANTHROPIC_API_KEY=your-key</code>, then restart Anywrap. The key stays on this computer.
+          <strong>Add a free Gemini API key to start.</strong> Get one at <code>aistudio.google.com/apikey</code>, create a file named <code>.env</code> next to
+          <code>package.json</code> with the line <code>GEMINI_API_KEY=your-key</code>, then restart Anywrap. The key stays on this computer.
         </div>
       )}
       {health.state === "down" && (
@@ -164,7 +164,7 @@ export function Home({ health, error, onFile, onSample }: Props) {
           </li>
         </ol>
         <p className="how-foot">
-          {health.state === "ok" ? `Model: ${health.model}. ` : ""}The summary and the computed results go to Claude (Anthropic) through the local
+          {health.state === "ok" ? `Model: ${health.model}. ` : ""}The summary and the computed results go to Gemini (Google) through the local
           server, which holds your key. Nothing is stored.
         </p>
       </section>

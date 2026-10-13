@@ -5,14 +5,14 @@ import { readFileSync, existsSync, writeFileSync, mkdirSync } from "node:fs";
 
 const ROOT = new URL("../", import.meta.url);
 if (existsSync(new URL(".env", ROOT))) process.loadEnvFile(new URL(".env", ROOT).pathname);
-const anthropic = await import("../server/anthropic.ts");
+const ai = await import("../server/gemini.ts");
 const { makeStory } = await import("../src/pipeline.ts");
 const { checkCopy } = await import("../src/engine/check.ts");
 type Api = import("../src/pipeline.ts").Api;
 
 const api: Api = {
-  async plan(body) { const r = await anthropic.plan(body); return { plan: r.json as never, sent: anthropic.planUserMessage(body), seconds: r.seconds }; },
-  async write(body) { const r = await anthropic.write(body); return { copy: r.json as never, sent: anthropic.writeUserMessage(body), seconds: r.seconds }; },
+  async plan(body) { const r = await ai.plan(body); return { plan: r.json as never, sent: ai.planUserMessage(body), seconds: r.seconds }; },
+  async write(body) { const r = await ai.write(body); return { copy: r.json as never, sent: ai.writeUserMessage(body), seconds: r.seconds }; },
 };
 
 const EXPECT: Record<string, RegExp> = {

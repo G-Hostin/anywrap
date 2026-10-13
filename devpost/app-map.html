@@ -43,7 +43,7 @@
   <h2>What it is, in four pieces</h2>
   <ul>
     <li><strong>The browser</strong> reads the export file, writes a short summary, runs the AI's plan on every row and plays the story. The file never leaves it; only the summary (with 5 example rows) does.</li>
-    <li><strong>A small local server</strong> (<code>server/</code>) holds the API key and the fixed prompts, and forwards two kinds of small JSON requests to Claude.</li>
+    <li><strong>A small local server</strong> (<code>server/</code>) holds the API key and the fixed prompts, and forwards two kinds of small JSON requests to Gemini.</li>
     <li><strong>The AI</strong> is called twice: once to plan (what is this file, which calculations from a fixed menu), once to write captions from computed results.</li>
     <li><strong>The number checker</strong> (<code>src/engine/check.ts</code>) rejects any caption number that the calculations didn't produce.</li>
   </ul>
@@ -68,7 +68,7 @@
       <text class="mono" x="316" y="124">POST /api/plan</text>
       <text class="mono" x="316" y="198">POST /api/write</text>
       <rect x="540" y="60" width="250" height="180" rx="12" fill="#ff4fd81a" stroke="#ff4fd866"/>
-      <text x="556" y="84">Claude</text>
+      <text x="556" y="84">Gemini</text>
       <text class="small" x="556" y="118">summary → plan (JSON schema)</text>
       <text class="small" x="556" y="198">facts → captions (JSON schema)</text>
       <path d="M260 90 H300" stroke="#c9c4f2" stroke-width="1.6" marker-end="url(#a)"/>
@@ -98,7 +98,7 @@
     <tr><td>Change a chart</td><td><code>src/ui/charts.tsx</code> (bars, ranked list, month calendar, ring).</td></tr>
     <tr><td>Change the receipt</td><td><code>src/ui/Receipt.tsx</code>. Its content comes from <code>receipt</code> in <code>runSlide</code>.</td></tr>
     <tr><td>Read a new file format</td><td><code>src/engine/read.ts</code> (<code>readText</code>) and <code>src/engine/parse.ts</code> (numbers, dates).</td></tr>
-    <tr><td>Use another model</td><td><code>ANTHROPIC_MODEL=</code> in <code>.env</code>.</td></tr>
+    <tr><td>Use another model</td><td><code>GEMINI_MODEL=</code> in <code>.env</code>.</td></tr>
     <tr><td>Add a sample file</td><td><code>scripts/make-samples.ts</code>, then <code>src/samples.ts</code> and the expectations in <code>scripts/check-live.ts</code>.</td></tr>
   </table>
 
@@ -117,7 +117,7 @@
 
   <h2>Run it again</h2>
 <pre>npm install
-cp .env.example .env     # put your Anthropic key after ANTHROPIC_API_KEY=
+cp .env.example .env     # put your free Gemini key after GEMINI_API_KEY=
 npm run build &amp;&amp; npm start   # http://localhost:5173
 npm test                 # engine and checker, no API calls</pre>
 </main>

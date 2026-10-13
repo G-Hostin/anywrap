@@ -42,6 +42,12 @@ export function checkCopy(copy: Copy, results: Result[], extra: string[], everyw
   return problems;
 }
 
+/** Cards the writer neither captioned nor listed in "skipped": they go back for a rewrite like any other problem. */
+export function missingCaptions(copy: Copy, results: Result[]): Problem[] {
+  const done = new Set([...(copy.slides || []).map((s) => s.id), ...(copy.skipped || []).map((s) => s.id)]);
+  return results.filter((r) => !done.has(r.id)).map((r) => ({ id: r.id, field: "id", text: "", issue: "this card has no caption: write one" }));
+}
+
 /** A plain caption built only from facts, used when the AI's caption fails the check twice. */
 export function templateCaption(r: Result): Caption {
   const f = r.facts;

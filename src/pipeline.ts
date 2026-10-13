@@ -2,7 +2,7 @@
 import { readText, AnywrapError } from "./engine/read.ts";
 import { summarize, hasSignal } from "./engine/summary.ts";
 import { runPlan } from "./engine/run.ts";
-import { checkCopy, mergeCaption, type Problem } from "./engine/check.ts";
+import { checkCopy, missingCaptions, mergeCaption, type Problem } from "./engine/check.ts";
 import { nf, sizeLabel } from "./engine/format.ts";
 import { normalizePlan } from "./engine/plan.ts";
 import type { Plan, Copy, Story, Card, Summary, RunOutput, Table } from "./engine/types.ts";
@@ -37,6 +37,7 @@ async function post<T>(url: string, body: unknown, signal?: AbortSignal): Promis
 }
 
 const MIN_CARDS = 3;
+const MIN_SHOWN = 6; // the writer may skip a card, but never thin the story below this
 
 export async function makeStory(
   input: { name: string; text: string; bytes: number },
@@ -91,28 +92,33 @@ export async function makeStory(
   const extra = [run.period, nf(run.rowsInPeriod)];
   const w1 = await api.write({ story: facts }, signal);
   const copies: Copy[] = [w1.copy];
-  let problems = checkCopy(w1.copy, run.results, extra, [run.period]);
+  const review = (c: Copy) => [...checkCopy(c, run.results, extra, [run.period]), ...missingCaptions(c, run.results)];
+  let problems = review(w1.copy);
   const caught = problems;
   let writeSent = w1.sent;
   let rewrites = 0;
   if (problems.length) {
     rewrites = 1;
-    onStep({ id: "write", state: "active", text: `Rewriting ${problems.length} caption detail${problems.length > 1 ? "s" : ""} the number checker rejected` });
+    onStep({ id: "write", state: "active", text: `Rewriting ${problems.length} caption detail${problems.length > 1 ? "s" : ""} the checker rejected` });
     const w2 = await api.write({ story: facts, retry: { previous: w1.copy, problems } }, signal);
     copies.unshift(w2.copy); // prefer the retry
     writeSent = w2.sent;
-    problems = checkCopy(w2.copy, run.results, extra, [run.period]);
+    problems = review(w2.copy);
   }
   stop();
 
   const latest = copies[0];
-  const problemsOf = (c: Copy) => checkCopy(c, run.results, extra, [run.period]);
+  const problemsOf = review;
   const checks = copies.map((c) => ({ copy: c, problems: c === latest ? problems : problemsOf(c) }));
   const byId = new Map(run.results.map((r) => [r.id, r]));
   const skipped = new Set((latest.skipped || []).map((s) => s.id));
   const order = [...new Set([...(latest.slides || []).map((s) => s.id).filter((id) => byId.has(id)), ...run.results.map((r) => r.id)])];
   let ids = order.filter((id) => !skipped.has(id));
-  if (ids.length < MIN_CARDS) ids = order.slice(0, Math.max(MIN_CARDS, ids.length));
+  const floor = Math.min(MIN_SHOWN, order.length);
+  if (ids.length < floor) {
+    const back = new Set([...ids, ...order.filter((id) => skipped.has(id)).slice(0, floor - ids.length)]);
+    ids = order.filter((id) => back.has(id));
+  }
 
   const cards: Card[] = ids.map((id) => {
     const r = byId.get(id)!;

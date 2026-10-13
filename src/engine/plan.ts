@@ -21,12 +21,18 @@ export function normalizePlan(raw: unknown): Plan {
   const ds = (r.dataset ?? {}) as Raw;
   const pr = (r.period ?? null) as Raw | null;
   const period = pr && s(pr.date) && s(pr.from) && s(pr.to) ? { date: String(pr.date), from: String(pr.from), to: String(pr.to), label: s(pr.label) ?? `${pr.from} to ${pr.to}` } : null;
+  // a card filter like "date >= period start" repeats the period and only clutters the receipt
+  const restatesPeriod = (f: Filter) => !!period && f.col === period.date && ["gt", "gte", "lt", "lte"].includes(f.op) && (f.value === period.from || f.value === period.to);
   const derive: Derive[] = arr<Raw>(r.derive).map((d) => ({ name: String(d.name), from: String(d.from), op: d.op as Derive["op"], ...(s(d.arg) !== undefined || d.arg === "" ? { arg: String(d.arg ?? "") } : {}), replacement: String(d.replacement ?? "") }));
   const fields: Field[] = arr<Raw>(r.fields).map((f) => {
     const out: Field = { col: String(f.col), type: f.type as Field["type"] };
     if (f.decimal === "." || f.decimal === ",") out.decimal = f.decimal;
     if (s(f.unit)) out.unit = String(f.unit);
     if (typeof f.scale === "number" && f.scale !== 0 && f.scale !== 1) out.scale = f.scale;
+    if (out.type === "number" && out.unit && /^(ms|s|sec|secs|seconds?|min|mins|minutes?)$/i.test(out.unit)) {
+      out.type = "duration";
+      out.unit = /^ms$/i.test(out.unit) ? "ms" : /^m/i.test(out.unit) ? "min" : "s";
+    }
     if (f.order === "MDY" || f.order === "DMY") out.order = f.order;
     const tv = arr<unknown>(f.true_values).map(String).filter(Boolean);
     if (tv.length) out.true_values = tv;
@@ -39,14 +45,18 @@ export function normalizePlan(raw: unknown): Plan {
     if (s(x.unit)) out.unit = x.unit as Slide["unit"];
     if (s(x.stat)) out.stat = x.stat as Slide["stat"];
     if (s(x.dir)) out.dir = x.dir as Slide["dir"];
-    const show = arr<unknown>(x.show).map(String).filter(Boolean);
+    const show = arr<unknown>(x.show).map(String).filter(Boolean).filter((c) => c !== s(x.measure) && c !== period?.date);
     if (show.length) out.show = show;
     if (posInt(x.k)) out.k = posInt(x.k);
     if (posInt(x.min_rows)) out.min_rows = posInt(x.min_rows);
     const match = arr<Raw>(x.match).map(filter);
     if (match.length) out.match = match;
-    const where = arr<Raw>(x.where).map(filter);
+    const where = arr<Raw>(x.where).map(filter).filter((f) => !restatesPeriod(f));
     if (where.length) out.where = where;
+    // a measure only matters for sums, means and records; models sometimes fill it in anyway
+    const usesMeasure = out.op === "total" || out.op === "average" || out.op === "record" || out.op === "compare"
+      || ((out.op === "top" || out.op === "timeline" || out.op === "peak_day") && (out.by === "sum" || out.by === "mean"));
+    if (!usesMeasure) delete out.measure;
     return out;
   });
   return {

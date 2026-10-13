@@ -28,10 +28,10 @@ Use "copy" to get a second view of a numeric column, then declare that copy in f
 FILTERS: {"col": "...", "op": "eq|neq|in|not_in|contains|not_contains|starts_with|gt|gte|lt|lte|empty|not_empty", "value": "...", "values": [...]}
 Text comparisons ignore case. Dates in filters are "YYYY-MM-DD". Numbers are compared after scale. A boolean column compares with "true" or "false".
 
-CARD OPS. Every card can add "where": [filters] to restrict its rows.
+CARD OPS. Every card can add "where": [filters] to restrict its rows. The period already applies to every card: never repeat it in "where". Leave "measure" as "" when the op doesn't use it (counts, streaks, distinct, share).
 - total: {"measure": col} sum of a number or duration column; without measure, the number of rows.
 - average: {"measure": col, "stat": "mean|median"}; a time_of_day column gets a circular mean (works across midnight).
-- record: {"measure": col, "dir": "max|min", "show": [columns that describe the row]} the single best row.
+- record: {"measure": col, "dir": "max|min", "show": [1 or 2 text columns that name the row: title, name, merchant]} the single best row. Never put numbers, dates or IDs in "show". For money, use a column scaled so spending is positive.
 - top: {"group": col, "by": "count|sum", "measure": col, "k": 3 to 5, "split": ", "} most frequent (count) or biggest (sum) groups; "split" for cells holding several values.
 - distinct: {"group": col} number of different values.
 - timeline: {"date": col, "unit": "month|weekday|hour", "by": "count|sum|mean", "measure": col} distribution; returns the peak and the low. "hour" needs dates with a time of day.
@@ -44,7 +44,7 @@ CARD OPS. Every card can add "where": [filters] to restrict its rows.
 FORMAT: every property in the plan is required. When a property doesn't apply, write "" for text, [] for lists, 0 for k and min_rows, and 1 for scale. A file with no usable date column gets a period with date "".
 Filters always carry both "value" (one value, as text: "Run", "100", "2025-03-01", "true") and "values" (a list, used only by in and not_in).
 
-Rules: use the exact column names from the summary, or your derived names. Never group by ID, URL or file-name columns. Never total something meaningless (ratings, IDs, balances, years). Never build a card around something embarrassing or sensitive (health problems, debts, very late nights framed as a flaw).`;
+Rules: use the exact column names from the summary, or your derived names. Never group by ID, URL or file-name columns. Never total something meaningless (ratings, IDs, balances, years). Never build a card around something embarrassing or sensitive (health problems, nightmares, debts, very late nights framed as a flaw), and never around free-text notes.`;
 
 export const PLANNER_REPAIR = `The engine ran your plan on the full file and reported the errors below. Row counts show how many rows each step kept or removed.
 Return the full corrected plan. Keep the cards that worked unchanged; fix or replace the ones that failed.`;
@@ -52,15 +52,18 @@ Return the full corrected plan. Keep the cards that worked unchanged; fix or rep
 export const WRITER = `You write the text of a playful year-in-review story from results that code computed on the person's full file.
 You must not compute, round, estimate or invent any number. Every number you write must be copied exactly as it appears in the FACTS of that card (the opener and the persona may use any card's facts or the period label).
 Write numbers only with the digits shown in the facts: no number words ("four times", "twelve days"), no arithmetic words ("double", "half", "twice", "a third"), no "nearly" or "about".
-"big" is the hero value: copy one fact value exactly, character for character.
+"big" is the hero value: copy one fact value exactly, character for character. Pick the most telling one: for top use top1 (the name; top1_value only if the name is very long), for timeline the peak, for peak_day the date, for compare the gap, for first_last first_date, otherwise value.
+Group labels like "café après 16h: yes" come from the file: turn them into plain words ("nights with a coffee after 4 PM"). "sub" adds something new; never repeat the line or the hero value in other words.
+A compare card shows a difference between two groups, not a cause: never say one thing caused, hurt, saved or improved the other.
+Fact keys such as "groups", "count", "rows" or "matched" are technical: never write "groups", "rows" or "values" in a caption. Say what they are (channels, books, nights, purchases, runs).
 "line" is shown right under the hero value but must stand alone: a complete sentence that starts with a capital letter (not a continuation like "visits to…").
 Labels from the file (merchant names, titles) may be in capitals or contain codes: write them as they appear in the facts.
-Talk to the person ("you"): warm, a little cheeky, never mean, never judgmental about money, health or habits. English. Short.
-Leave out a card (and list it in "skipped") if its facts are dull, look wrong, or reveal something embarrassing.
+Talk to the person ("you") like a friend who read their year: warm, a little cheeky, never mean, never judgmental about money, health or habits. Use contractions (you're, let's, that's). Use the concrete details in the facts (names, days, titles) rather than generic praise like "incredible", "impressive" or "amazing". English. Short.
+Write a caption for every card. Skip a card (and list it in "skipped") only if its facts look wrong or reveal something embarrassing: at most one card. Two cards about similar things are fine: give each its own angle.
 Order the cards for a good story: start light, put the most surprising fact near the end.
 Lengths: kicker 2 to 5 words; line and sub at most 14 words each, sub can be ""; opener title at most 6 words, opener line at most 14 words; persona name 2 to 4 words with no numbers; persona why at most 14 words.`;
 
-export const WRITER_RETRY = `The number checker rejected parts of your previous answer (list below). Rewrite the whole answer and fix every problem. Remember: digits only, copied exactly from that card's facts.`;
+export const WRITER_RETRY = `The checker rejected parts of your previous answer, or found cards without a caption (list below). Rewrite the whole answer, with a caption for every card, and fix every problem. Remember: digits only, copied exactly from that card's facts.`;
 
 // ---- JSON schemas ----
 // Structured outputs compile the schema into a grammar with a size limit. Optional properties and
@@ -77,8 +80,13 @@ const filter = obj({
 });
 
 export const PLAN_SCHEMA = obj({
-  dataset: obj({ source: str, row_means: str, subject: str, confidence: { type: "string", enum: ["high", "medium", "low"] } }),
-  period: obj({ date: str, from: str, to: str, label: str }),
+  dataset: obj({
+    source: { type: "string", description: "What kind of export this is, in plain words (e.g. \"Sleep diary app export\", \"US bank account transactions\"). Never the file name." },
+    row_means: { type: "string", description: "What one row is, in one short sentence." },
+    subject: str,
+    confidence: { type: "string", enum: ["high", "medium", "low"] },
+  }),
+  period: obj({ date: str, from: str, to: str, label: { type: "string", description: "Short period label shown on the cards: \"2025\" for a calendar year, otherwise the month range like \"March 2025 – February 2026\". Nothing else." } }),
   derive: { type: "array", items: obj({ name: str, from: str, op: { type: "string", enum: ["copy", "strip_prefix", "strip_suffix", "regex_replace", "extract"] }, arg: str, replacement: str }) },
   fields: {
     type: "array",
