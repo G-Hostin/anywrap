@@ -75,7 +75,7 @@ Build mode: fast. Gregory delegated the build ("full autonomy, ask me as little 
 ## Code Tour and App Map
 
 - [ ] Learning wrap-up and `devpost/app-map.html` complete
-  - `devpost/app-map.html` generated from commit `4eff39b`. It has a flow diagram, a three-stop reference route (`makeStory` → `case "compare":` → `checkCopy`), "To change this, start here" pointers and a practice to reuse. Every path and search anchor was checked against the source. It renders offline with scripts disabled and makes no network requests.
+  - `devpost/app-map.html` generated from commit `5e9c96e`. It has a flow diagram, a three-stop reference route (`makeStory` → `case "compare":` → `checkCopy`), "To change this, start here" pointers and a practice to reuse. Every path and search anchor was checked against the source. It renders offline with scripts disabled and makes no network requests.
   - Wrap-up activity: not done yet. The route is labeled as a reference, not as a completed tour. It waits for Gregory's final review, and he may skip it (concise preference, delegated build).
 
 ## Revisions
