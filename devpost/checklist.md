@@ -70,13 +70,21 @@ Build mode: fast. Gregory delegated the build ("full autonomy, ask me as little 
 
 ## Final Review
 
-- [ ] Final review complete — feedback resolved and learner confirms ready to ship
+- [x] Final review complete — feedback resolved and learner confirms ready to ship
+  - Gregory tried the app (13 Oct, evening): "really not bad, I like it, it's original", with one request: a little more design work. He gave the go-ahead to publish.
+  - Design pass made in response, kept inside the existing scope:
+    - the story plays like a deck: the neighbouring cards wait at the sides, the current card's colour lights the stage, and the controls sit together in one dock with a keyboard hint;
+    - every card front is a ticket, with a perforated stub and two notches that echo the receipt on its back;
+    - the Working screen is a small receipt printer feeding out the slip;
+    - the home fan of example cards spreads out on hover, and the sample chips show their file format.
+  - Copy fix found during that pass: the summary sent to the AI includes 5 example rows. The home slip, the receipt, "What the AI saw", the README and the app map now say so instead of "no rows".
+  - Evidence: 47 cards captured at 1280×900 and 390×844 with no overflow, share PNGs still 1080×1920 without the notches, a live end-to-end run on the bank sample (guess after 8.5 s, story after 14.3 s, 7/7 receipts complete, no page errors), 18/18 tests and a clean build.
 
 ## Code Tour and App Map
 
 - [ ] Learning wrap-up and `devpost/app-map.html` complete
   - `devpost/app-map.html` generated from commit `5e9c96e`. It has a flow diagram, a three-stop reference route (`makeStory` → `case "compare":` → `checkCopy`), "To change this, start here" pointers and a practice to reuse. Every path and search anchor was checked against the source. It renders offline with scripts disabled and makes no network requests.
-  - Wrap-up activity: not done yet. The route is labeled as a reference, not as a completed tour. It waits for Gregory's final review, and he may skip it (concise preference, delegated build).
+  - Wrap-up activity: the app map is the take-home guide. No separate tour was run: Gregory delegated the build and asked to be consulted as little as possible. The route stays labeled as a reference, not as a completed tour.
 
 ## Revisions
 - Slice 1: the API refused the first plan schema ("compiled grammar is too large"): optional properties and union types make the enforced grammar grow too fast. The plan schema now marks every property as required and uses "", [] or 0 for "not used"; the new `src/engine/plan.ts` turns that answer back into a clean plan. Filters carry `value` (text) plus `values` (list). Same behavior, same guarantees.
