@@ -107,7 +107,7 @@ export function runPlan(table: Table, plan: Plan, summary?: Summary): RunOutput 
   const groupKey = (c: string): string[] => {
     const f = fieldOf(c);
     const vals = typed(c);
-    if (f.type === "boolean") return (vals as (boolean | null)[]).map((b) => (b === null ? "" : b ? "yes" : "no"));
+    if (f.type === "boolean") return (vals as (boolean | null)[]).map((b) => (b === null ? "" : `${c}: ${b ? "yes" : "no"}`));
     if (f.type === "date") return (vals as (Date | null)[]).map((d) => (d ? dayKey(d) : ""));
     if (f.type === "text") return vals as string[];
     return rawColumn(c);
@@ -218,7 +218,7 @@ export function runPlan(table: Table, plan: Plan, summary?: Summary): RunOutput 
     if (meas && !isNumeric(s.measure!) && mf?.type !== "number") throw new Error(`measure "${s.measure}" is not a number, duration or clock time`);
     const nums = (ix: number[]) => ix.map((i) => meas![i]).filter((v): v is number => v !== null && v !== undefined && !Number.isNaN(v));
     const show = (v: number) => fmtMeasure(v, mf);
-    const label = (i: number, cols?: string[]) => (cols || []).map((c) => { use(c); return trunc(rawColumn(c)[i] ?? "", 70); }).filter(Boolean).join(" · ");
+    const label = (i: number, cols?: string[]) => (cols || []).map((c) => { use(c); return trunc(rawColumn(c)[i] ?? "", 70); }).filter(Boolean).join(", ");
     const periodDates = plan.period?.date ? (typed(plan.period.date, "date") as (Date | null)[]) : null;
 
     switch (s.op) {

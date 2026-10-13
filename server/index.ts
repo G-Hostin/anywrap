@@ -83,6 +83,8 @@ async function serveStatic(res: ServerResponse, path: string): Promise<void> {
 
 let vite: { middlewares: (req: IncomingMessage, res: ServerResponse, next: () => void) => void } | null = null;
 if (DEV) {
+  // Vite derives import.meta.env.DEV from NODE_ENV; some shells export NODE_ENV=production globally.
+  process.env.NODE_ENV = "development";
   const { createServer: createVite } = await import("vite");
   vite = await createVite({ root: ROOT, server: { middlewareMode: true }, appType: "spa" });
 }
@@ -90,6 +92,12 @@ if (DEV) {
 createServer((req, res) => {
   const path = (req.url || "/").split("?")[0];
   if (path.startsWith("/api/")) return void api(req, res, path);
+  if (DEV && path.startsWith("/__live/")) {
+    // dev only: stories saved by `npm run check:live`, for visual checks without AI calls
+    const file = normalize(join(ROOT, "scripts/.live", decodeURIComponent(path.slice("/__live/".length))));
+    if (!file.startsWith(join(ROOT, "scripts/.live"))) { res.writeHead(403); res.end(); return; }
+    return void readFile(file).then((d) => { res.writeHead(200, { "content-type": "application/json" }); res.end(d); }, () => { res.writeHead(404); res.end(); });
+  }
   if (vite) return vite.middlewares(req, res, () => { res.writeHead(404); res.end(); });
   return void serveStatic(res, path);
 }).listen(PORT, "127.0.0.1", () => {

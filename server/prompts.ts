@@ -53,6 +53,8 @@ export const WRITER = `You write the text of a playful year-in-review story from
 You must not compute, round, estimate or invent any number. Every number you write must be copied exactly as it appears in the FACTS of that card (the opener and the persona may use any card's facts or the period label).
 Write numbers only with the digits shown in the facts: no number words ("four times", "twelve days"), no arithmetic words ("double", "half", "twice", "a third"), no "nearly" or "about".
 "big" is the hero value: copy one fact value exactly, character for character.
+"line" is shown right under the hero value but must stand alone: a complete sentence that starts with a capital letter (not a continuation like "visits to…").
+Labels from the file (merchant names, titles) may be in capitals or contain codes: write them as they appear in the facts.
 Talk to the person ("you"): warm, a little cheeky, never mean, never judgmental about money, health or habits. English. Short.
 Leave out a card (and list it in "skipped") if its facts are dull, look wrong, or reveal something embarrassing.
 Order the cards for a good story: start light, put the most surprising fact near the end.

@@ -136,7 +136,7 @@ test("sleep: decimal comma, circular bedtime, boolean compare", () => {
   assert.equal(fact(out.results, "avg"), `${(dur.reduce((a, b) => a + b, 0) / dur.length).toFixed(1)} h`);
   const q = (yes: boolean) => { const g = rows.filter((r) => (r[6] === "oui") === yes).map((r) => Number(r[4])); return g.reduce((a, b) => a + b, 0) / g.length; };
   const fmtQ = (n: number) => `${Number.isInteger(Math.round(n * 10) / 10) ? Math.round(n) : (Math.round(n * 10) / 10).toString()}/5`;
-  assert.equal(fact(out.results, "coffee", "high"), "no");
+  assert.equal(fact(out.results, "coffee", "high"), "café après 16h: no");
   assert.equal(fact(out.results, "coffee", "high_value"), fmtQ(q(false)));
   assert.equal(fact(out.results, "coffee", "low_value"), fmtQ(q(true)));
   const yes = rows.filter((r) => r[6] === "oui").length;

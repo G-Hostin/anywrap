@@ -9,10 +9,10 @@ const posInt = (v: unknown): number | undefined => (typeof v === "number" && v >
 
 function filter(f: Raw): Filter {
   const op = String(f.op) as Filter["op"];
-  const values = arr<unknown>(f.values).map(String);
+  const values = (arr<unknown>(f.values).length ? arr<unknown>(f.values) : Array.isArray(f.value) ? (f.value as unknown[]) : []).map(String);
   if (op === "in" || op === "not_in") return { col: String(f.col), op, value: values.length ? values : s(f.value) ? [String(f.value)] : [] };
   if (op === "empty" || op === "not_empty") return { col: String(f.col), op };
-  const value = f.value ?? values[0] ?? "";
+  const value = Array.isArray(f.value) ? values[0] ?? "" : f.value ?? values[0] ?? "";
   return { col: String(f.col), op, value: typeof value === "string" ? value : (value as string | number | boolean) };
 }
 

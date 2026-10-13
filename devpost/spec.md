@@ -167,7 +167,7 @@ PRD ref: `prd.md > Understanding the file (AI, step 1)`.
 - Opener, stat and closing layouts. Chart per calculation:
   - timeline: bars with the peak highlighted;
   - top: ranked bars;
-  - streak: year heat-map with the streak run highlighted;
+  - streak: a month calendar with the streak highlighted (1–2 big months with day numbers for short streaks, 12 small months for long ones);
   - share: ring;
   - compare: bars;
   - record, total, average, distinct and first/last: hero-only.

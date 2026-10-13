@@ -19,7 +19,7 @@ Build mode: fast. Gregory delegated the build ("full autonomy, ask me as little 
   Learner check: Run `npm run dev`, click "Bank account", and read the cards: do the guess and the numbers make sense?
   Commit: `Drop a file and get a checked story`
 
-- [ ] **2. The story looks and moves like a year-in-review**
+- [x] **2. The story looks and moves like a year-in-review**
   Becomes usable: full-screen poster cards with the AI-chosen palette, hero number, kicker and caption, one chart per calculation, progress segments, click and keyboard navigation, opener and closing persona cards.
   Why now: the story player is what the video shows most; its layout constraints (long labels, big numbers) can force changes to captions and facts, so it should come before the secondary screens.
   PRD ref: `prd.md > The story`, `prd.md > Look and Feel`
@@ -78,3 +78,8 @@ Build mode: fast. Gregory delegated the build ("full autonomy, ask me as little 
   - `npm test`: 18 tests pass. They compare the engine with numbers recomputed independently on all 5 samples.
   - `npm run check:live`: 5/5 files recognized, 7–8 cards each, 0 template captions, 0 numbers outside the facts, 16–27 s per story. The summary sent is 2.2–6.8 KB, against 1.1 MB for the watch-history file.
   - Browser (headless Chrome): the bank sample ran end to end; only `/api/plan` and `/api/write` were called, with 2.2 KB and 1.9 KB bodies.
+- Slice 2: the streak chart became a month calendar instead of a 53-week strip. The strip made a 5-day streak a few pixels wide; the calendar shows short streaks on 1–2 big months with day numbers, long ones on 12 small months. Spec `Card, charts, receipt` updated.
+- Slice 2: comparison groups built from a yes/no column are labeled with the column name ("café après 16h: no"), not a bare "no".
+- Slice 2: dev servers launched from a shell with `NODE_ENV=production` made Vite run the client in production mode. `--dev` now forces development mode.
+- Slice 2: the writer prompt now asks for a stand-alone first caption line. The bank story had produced "visits to BEAN THERE CAFE…" after the hero number.
+- Slice 2 evidence: 48 cards captured over 5 saved stories at 1280×900 and 390×844 (headless Chrome, `?replay=` dev mode). A DOM check (no element outside its card, no overlapping blocks) passes. The contact sheets were reviewed after one fix: a long text hero ("lofi beats to study to") had spilled over its chart, and hero text is now height-capped. `npm run build` passes.

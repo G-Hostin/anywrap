@@ -85,7 +85,7 @@ Carried from `scope.md > Inspiration & Identity`. Chosen by the agent under dele
 - Each stat card shows a chart matched to its calculation:
   - **timeline**: bars, peak highlighted;
   - **top**: ranked list with bars;
-  - **streak**: a year heat-map with the streak highlighted;
+  - **streak**: a month calendar with the streak highlighted;
   - **share**: a ring;
   - **comparison**: two or more bars;
   - **record and total**: the hero number alone, with the record's label.
