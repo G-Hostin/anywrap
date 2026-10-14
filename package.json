@@ -11,11 +11,14 @@
   "scripts": {
     "dev": "node server/index.ts --dev",
     "build": "vite build",
+    "build:web": "vite build --mode web",
+    "preview:web": "vite preview --mode web --outDir dist-web --port 5180",
     "start": "node server/index.ts",
-    "test": "TZ=Europe/Paris node --test tests/*.test.ts",
+    "test": "TZ=Europe/Paris node --test tests/*.test.ts && TZ=America/New_York node --test tests/replay.test.ts && TZ=Asia/Bangkok node --test tests/replay.test.ts",
     "typecheck": "tsc -p tsconfig.json",
     "samples": "TZ=Europe/Paris node scripts/make-samples.ts",
-    "check:live": "TZ=Europe/Paris node scripts/check-live.ts"
+    "check:live": "TZ=Europe/Paris node scripts/check-live.ts",
+    "record": "TZ=Europe/Paris node scripts/record-samples.ts"
   },
   "dependencies": {
     "@fontsource-variable/bricolage-grotesque": "^5.3.0",

@@ -12,4 +12,5 @@
 # Build output and local runs
 node_modules/
 dist/
+dist-web/
 scripts/.live/

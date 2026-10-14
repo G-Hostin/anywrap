@@ -1,0 +1,225 @@
+{
+ "sample": "bank-account.csv",
+ "model": "gemini-3.5-flash-lite",
+ "recordedAt": "2026-10-13",
+ "timeZone": "Europe/Paris",
+ "plan": {
+  "dataset": {
+   "source": "Bank account transactions export",
+   "row_means": "One row is a single bank transaction (credit or debit).",
+   "subject": "Personal finance and spending habits",
+   "confidence": "high"
+  },
+  "period": {
+   "date": "Posting Date",
+   "from": "2025-01-01",
+   "to": "2025-12-31",
+   "label": "2025"
+  },
+  "derive": [
+   {
+    "name": "Merchant",
+    "from": "Description",
+    "op": "regex_replace",
+    "arg": "( #\\d+.*| PPD ID:.*)",
+    "replacement": ""
+   },
+   {
+    "name": "Spend",
+    "from": "Amount",
+    "op": "copy",
+    "arg": "",
+    "replacement": ""
+   }
+  ],
+  "fields": [
+   {
+    "col": "Posting Date",
+    "type": "date",
+    "order": "MDY"
+   },
+   {
+    "col": "Amount",
+    "type": "number",
+    "decimal": ".",
+    "unit": "USD"
+   },
+   {
+    "col": "Spend",
+    "type": "number",
+    "decimal": ".",
+    "unit": "USD",
+    "scale": -1
+   },
+   {
+    "col": "Merchant",
+    "type": "text"
+   },
+   {
+    "col": "Details",
+    "type": "text"
+   }
+  ],
+  "exclude": [],
+  "slides": [
+   {
+    "id": "total_spend",
+    "op": "total",
+    "angle": "Total hard-earned money directed toward your 2025 living expenses",
+    "measure": "Spend",
+    "where": [
+     {
+      "col": "Details",
+      "op": "eq",
+      "value": "DEBIT"
+     }
+    ]
+   },
+   {
+    "id": "top_merchants",
+    "op": "top",
+    "angle": "Your absolute favorite places to visit",
+    "group": "Merchant",
+    "by": "count",
+    "k": 3,
+    "where": [
+     {
+      "col": "Details",
+      "op": "eq",
+      "value": "DEBIT"
+     }
+    ]
+   },
+   {
+    "id": "biggest_expense",
+    "op": "record",
+    "angle": "The single largest transaction of the year",
+    "measure": "Spend",
+    "dir": "max",
+    "show": [
+     "Merchant"
+    ],
+    "where": [
+     {
+      "col": "Details",
+      "op": "eq",
+      "value": "DEBIT"
+     }
+    ]
+   },
+   {
+    "id": "monthly_timeline",
+    "op": "timeline",
+    "angle": "How your spending fluctuated across the months",
+    "measure": "Spend",
+    "date": "Posting Date",
+    "by": "sum",
+    "unit": "month",
+    "where": [
+     {
+      "col": "Details",
+      "op": "eq",
+      "value": "DEBIT"
+     }
+    ]
+   },
+   {
+    "id": "peak_spending_day",
+    "op": "peak_day",
+    "angle": "The single day you spent the most",
+    "measure": "Spend",
+    "date": "Posting Date",
+    "by": "sum",
+    "where": [
+     {
+      "col": "Details",
+      "op": "eq",
+      "value": "DEBIT"
+     }
+    ]
+   },
+   {
+    "id": "total_income",
+    "op": "total",
+    "angle": "Total inflows recorded into your account",
+    "measure": "Amount",
+    "where": [
+     {
+      "col": "Details",
+      "op": "eq",
+      "value": "CREDIT"
+     }
+    ]
+   },
+   {
+    "id": "transaction_streak",
+    "op": "streak",
+    "angle": "Your longest streak of consecutive active banking days",
+    "date": "Posting Date"
+   }
+  ],
+  "palette": "ink"
+ },
+ "copy": {
+  "opener": {
+   "title": "Your 2025 Financial Story",
+   "line": "Let's look at how you spent your money this year."
+  },
+  "slides": [
+   {
+    "id": "top_merchants",
+    "kicker": "Your favorite stop",
+    "big": "BEAN THERE CAFE",
+    "line": "You visited BEAN THERE CAFE more than anywhere else.",
+    "sub": "That covered 39% across 17 destinations."
+   },
+   {
+    "id": "total_spend",
+    "kicker": "The grand total",
+    "big": "$36,520",
+    "line": "You directed $36,520 toward living expenses.",
+    "sub": "Spread across 651 purchases."
+   },
+   {
+    "id": "monthly_timeline",
+    "kicker": "Spending highs",
+    "big": "November",
+    "line": "November was your peak month with $3,892 spent.",
+    "sub": "Things cooled down in December at $2,651."
+   },
+   {
+    "id": "biggest_expense",
+    "kicker": "Biggest single bill",
+    "big": "$1,650",
+    "line": "OAKWOOD APTS RENT took the biggest single transaction slot.",
+    "sub": "Paid on Mon, Dec 1."
+   },
+   {
+    "id": "peak_spending_day",
+    "kicker": "Most expensive day",
+    "big": "Sat, Nov 1",
+    "line": "Sat, Nov 1 was the single day you spent the most.",
+    "sub": "A total of $1,795 left your account."
+   },
+   {
+    "id": "total_income",
+    "kicker": "Money coming in",
+    "big": "$57,745",
+    "line": "Total inflows recorded into your account reached $57,745.",
+    "sub": "Recorded across 25 deposits."
+   },
+   {
+    "id": "transaction_streak",
+    "kicker": "Active banking days",
+    "big": "65",
+    "line": "You had 65 consecutive active banking days.",
+    "sub": "Running from Wed, Sep 3 to Thu, Nov 6."
+   }
+  ],
+  "persona": {
+   "name": "Busy Coffee Fan",
+   "why": "You stayed active across 343 days and fueled up constantly."
+  },
+  "skipped": []
+ }
+}

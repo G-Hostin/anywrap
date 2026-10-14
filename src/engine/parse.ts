@@ -28,6 +28,18 @@ export function parseNumber(raw: unknown, decimal: "." | "," = "."): number | nu
 const MONTHS: [string, number][] = [["janvier", 0], ["janv", 0], ["january", 0], ["jan", 0], ["fevrier", 1], ["fevr", 1], ["february", 1], ["feb", 1], ["fev", 1], ["mars", 2], ["march", 2], ["mar", 2], ["avril", 3], ["april", 3], ["avr", 3], ["apr", 3], ["mai", 4], ["may", 4], ["juin", 5], ["june", 5], ["jun", 5], ["juillet", 6], ["juil", 6], ["july", 6], ["jul", 6], ["aout", 7], ["august", 7], ["aug", 7], ["septembre", 8], ["september", 8], ["sept", 8], ["sep", 8], ["octobre", 9], ["october", 9], ["oct", 9], ["novembre", 10], ["november", 10], ["nov", 10], ["decembre", 11], ["december", 11], ["dec", 11]];
 const monthIndex = (name: string): number => { const hit = MONTHS.find(([k]) => name === k || (name.startsWith(k) && k.length >= 3)); return hit ? hit[1] : -1; };
 
+// Timestamps with a time zone (or epoch numbers) are read as wall-clock time in `zone`, by default this device's.
+// Replays of a recorded run pin the recording's zone, so day boundaries (and every number) match it.
+let zoneFmt: Intl.DateTimeFormat | null = null;
+export function setTimeZone(zone?: string): void {
+  zoneFmt = zone ? new Intl.DateTimeFormat("en-US", { timeZone: zone, hourCycle: "h23", year: "numeric", month: "numeric", day: "numeric", hour: "numeric", minute: "numeric", second: "numeric" }) : null;
+}
+function wall(u: Date): Date {
+  if (!zoneFmt) return u;
+  const p = Object.fromEntries(zoneFmt.formatToParts(u).map((x) => [x.type, x.value]));
+  return new Date(+p.year, +p.month - 1, +p.day, +p.hour % 24, +p.minute, +p.second);
+}
+
 function build(y: number, mo: number, d: number, hh?: string, mi?: string, ss?: string, ap?: string, tz?: string): Date | null {
   if (mo < 1 || mo > 12 || d < 1 || d > 31 || y < 1900 || y > 2100) return null;
   let h = hh ? +hh : 0;
@@ -43,7 +55,7 @@ function build(y: number, mo: number, d: number, hh?: string, mi?: string, ss?: 
       off = (m[1] === "-" ? -1 : 1) * (+m[2] * 60 + +(m[3] || 0));
     }
     const u = new Date(Date.UTC(y, mo - 1, d, h, min, sec) - off * 60000);
-    return new Date(Date.UTC(y, mo - 1, d)).getUTCDate() === d ? u : null;
+    return new Date(Date.UTC(y, mo - 1, d)).getUTCDate() === d ? wall(u) : null;
   }
   const date = new Date(y, mo - 1, d, h, min, sec);
   return date.getDate() === d ? date : null;
@@ -61,7 +73,7 @@ export function parseDate(raw: unknown, order: DateOrder = "MDY"): Date | null {
   if (!s || s.length > 60) return null;
   let m: RegExpMatchArray | null;
   if (/^\d{10}(\.\d+)?$/.test(s) || /^\d{13}$/.test(s)) {
-    const d = new Date(s.length === 13 ? +s : +s * 1000);
+    const d = wall(new Date(s.length === 13 ? +s : +s * 1000));
     const y = d.getFullYear();
     return y >= 1995 && y <= 2040 ? d : null;
   }

@@ -523,6 +523,38 @@ button { font: inherit; color: inherit; }
 .pill.solid { background: #f4f1ff; color: var(--ink); border-color: #f4f1ff; }
 .pill.solid:hover { background: #fff; }
 
+/* ---------- Web build: the visitor's own key ---------- */
+.key-status { margin: 14px 0 0; max-width: 520px; font-size: 14px; line-height: 1.45; color: #ffffffad; }
+.link-inline { background: none; border: 0; padding: 0; color: var(--mist); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; font-size: inherit; }
+.link-inline:hover { color: #fff; }
+.replay-note { margin: 0; max-width: 520px; text-align: center; font-size: 13px; line-height: 1.45; color: #ffffff8c; }
+.key-backdrop { position: fixed; inset: 0; z-index: 30; background: rgb(4 3 14 / 0.72); display: grid; place-items: center; padding: 16px; overflow-y: auto; animation: fade-in 160ms ease; }
+.keybox {
+  width: min(100%, 540px); background: var(--paper); color: var(--paper-ink); border-radius: 14px; padding: 24px clamp(18px, 4vw, 30px) 22px;
+  box-shadow: 0 30px 80px -20px rgb(0 0 0 / 0.8); display: grid; gap: 12px;
+}
+.keybox h2 { margin: 0; font-weight: 800; font-stretch: 78%; font-size: 30px; line-height: 1; letter-spacing: -0.02em; }
+.keybox h2 .file-name { font-family: var(--mono); font-stretch: 100%; font-size: 0.62em; font-weight: 700; letter-spacing: 0; overflow-wrap: anywhere; }
+.keybox p { margin: 0; font-size: 15px; line-height: 1.45; }
+.keybox a { color: #2340ff; }
+.key-steps { margin: 0; padding-left: 22px; font-size: 15px; line-height: 1.55; }
+.key-field { display: grid; gap: 6px; font-size: 13px; font-weight: 600; }
+.key-field input {
+  font-family: var(--mono); font-size: 15px; padding: 11px 12px; border-radius: 10px; border: 1.5px solid #1d1a1640; background: #fff; color: var(--paper-ink);
+}
+.key-field input:focus-visible { outline: 2px solid #2340ff; outline-offset: 1px; }
+.key-field input[aria-invalid="true"] { border-color: #b5123c; }
+.key-remember { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; line-height: 1.4; cursor: pointer; }
+.key-remember input { margin-top: 3px; accent-color: #2340ff; }
+.key-error { color: #b5123c; font-weight: 600; }
+.keybox .key-fine { font-size: 13px; color: #1d1a16b3; }
+.key-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.keybox .pill { border-color: #1d1a1633; color: var(--paper-ink); }
+.keybox .pill.solid { background: var(--paper-ink); color: var(--paper); border-color: var(--paper-ink); }
+.keybox .pill.solid:hover { background: #000; }
+.keybox .pill:disabled { opacity: 0.45; }
+@media (prefers-reduced-motion: reduce) { .key-backdrop { animation: none; } }
+
 @media (prefers-reduced-motion: reduce) {
   .slip-row, .guess, .working .slip, .printer-led { animation: none; }
   .mini, .peek { transition: none; }

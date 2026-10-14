@@ -87,6 +87,12 @@ Build mode: fast. Gregory delegated the build ("full autonomy, ask me as little 
   - Wrap-up activity: the app map is the take-home guide. No separate tour was run: Gregory delegated the build and asked to be consulted as little as possible. The route stays labeled as a reference, not as a completed tour.
 
 ## Revisions
+- Web version on GitHub Pages (Gregory, 14 Oct, after submission: "vas-y, fais tout en autonomie"), so judges and clients can try Anywrap without installing it:
+  - the Gemini call and the prompts moved to `src/ai/` so the local server and the web build share them; the local app behaves as before (e2e on the bank sample against the real API: 9 cards, 7 receipts, no page error);
+  - samples replay the plan and captions recorded from the real Gemini runs of 13 Oct (`src/web/recorded/`, `npm run record`); reading, summary, every calculation and the checker still run live, and the site says it's a replay on the working screen, the story and "What the AI saw";
+  - a first replay test failed outside Paris: the watch history's UTC timestamps landed on other days in other time zones (2,355 videos became 2,350 in Bangkok, the 365-day streak became 203 in Los Angeles), and the checker then rejected the recorded captions. Replays now read time-zoned timestamps in the recording's zone (`setTimeZone` in `parse.ts`); `tests/replay.test.ts` checks that every sample rebuilds its recorded story exactly, under Paris, New York and Bangkok;
+  - a visitor's own file asks for their own free Gemini key (checked with Google before use), kept for the tab or, if they tick the box, on the device; the page's CSP only lets it reach the Gemini API;
+  - evidence: web build served locally, bank sample replayed with no key (receipt 790/651, download, "What the AI saw" 55.1 / 2.2 / 1.4 KB), a fake key rejected, a real key wrapping the sleep diary live from the browser in 23 s (9 cards), "Forget it" clears the key; no CSP violation, no page error; dialog checked at 1280 px and 390 px.
 - Home made explicit (Gregory, 14 Oct: "make it clearer, so people see right away what it's for", and show 2 or 3 cases that prove how varied the accepted data is):
   - the headline now says what it does ("Turn any data export into your year in review"), and the hero shows a raw bank CSV becoming three of its cards;
   - the receipt-slip drop zone became a plain dashed drop zone with an upload icon (it read as a receipt, not as a place to drop a file); the receipt stays on the card backs and the Working screen;

@@ -5,6 +5,7 @@ import { runPlan } from "./engine/run.ts";
 import { checkCopy, missingCaptions, mergeCaption, type Problem } from "./engine/check.ts";
 import { nf, sizeLabel } from "./engine/format.ts";
 import { normalizePlan } from "./engine/plan.ts";
+import { setTimeZone } from "./engine/parse.ts";
 import type { Plan, Copy, Story, Card, Summary, RunOutput, Table } from "./engine/types.ts";
 
 export type PlanBody = { summary: Summary; repair?: { plan: Plan; errors: string[]; counts: RunOutput["counts"] } };
@@ -39,10 +40,26 @@ async function post<T>(url: string, body: unknown, signal?: AbortSignal): Promis
 const MIN_CARDS = 3;
 const MIN_SHOWN = 6; // the writer may skip a card, but never thin the story below this
 
+/** `timeZone` pins how time-zoned timestamps are read (replays of a recorded run); default: this device's zone. */
 export async function makeStory(
   input: { name: string; text: string; bytes: number },
   api: Api,
   onStep: (s: Step) => void = () => {},
+  signal?: AbortSignal,
+  opts: { timeZone?: string } = {},
+): Promise<Story> {
+  setTimeZone(opts.timeZone);
+  try {
+    return await buildStory(input, api, onStep, signal);
+  } finally {
+    setTimeZone(undefined);
+  }
+}
+
+async function buildStory(
+  input: { name: string; text: string; bytes: number },
+  api: Api,
+  onStep: (s: Step) => void,
   signal?: AbortSignal,
 ): Promise<Story> {
   const t0 = Date.now();

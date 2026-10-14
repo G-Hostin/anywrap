@@ -113,17 +113,20 @@ const UploadIcon = () => (
   </svg>
 );
 
+type Web = { hasKey: boolean; remembered: boolean; onAddKey: () => void; onForgetKey: () => void };
 type Props = {
   health: Health;
   error: string;
   onFile: (f: File) => void;
   onSample: (s: Sample) => void;
+  /** web build: no local server; samples replay a recorded AI run, own files use the visitor's Gemini key */
+  web?: Web;
 };
 
-export function Home({ health, error, onFile, onSample }: Props) {
+export function Home({ health, error, onFile, onSample, web }: Props) {
   const input = useRef<HTMLInputElement>(null);
   const [over, setOver] = useState(false);
-  const ready = health.state === "ok" && health.hasKey;
+  const ready = web ? true : health.state === "ok" && health.hasKey;
   const sampleOf = (file: string) => SAMPLES.find((s) => s.file === file);
 
   // the whole page accepts a dropped file
@@ -162,13 +165,13 @@ export function Home({ health, error, onFile, onSample }: Props) {
         <a className="home-link" href="https://github.com/G-Hostin/anywrap" target="_blank" rel="noreferrer">Code on GitHub</a>
       </header>
 
-      {health.state === "ok" && !health.hasKey && (
+      {!web && health.state === "ok" && !health.hasKey && (
         <div className="banner" role="alert">
           <strong>Add a free Gemini API key to start.</strong> Get one at <code>aistudio.google.com/apikey</code>, create a file named <code>.env</code> next to
           <code>package.json</code> with the line <code>GEMINI_API_KEY=your-key</code>, then restart Anywrap. The key stays on this computer.
         </div>
       )}
-      {health.state === "down" && (
+      {!web && health.state === "down" && (
         <div className="banner" role="alert"><strong>Can't reach the local Anywrap server.</strong> Start it with <code>npm start</code>, then reload this page.</div>
       )}
 
@@ -207,9 +210,16 @@ export function Home({ health, error, onFile, onSample }: Props) {
             onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) onFile(f); }}
           />
           {error && <p className="home-error" role="alert">{error}</p>}
+          {web && (
+            <p className="key-status">
+              {web.hasKey
+                ? <>Your Gemini key is saved {web.remembered ? "on this device" : "for this tab"}. <button className="link-inline" onClick={web.onForgetKey}>Forget it</button></>
+                : <>Your own file needs a free Gemini API key: Anywrap will ask for it. <button className="link-inline" onClick={web.onAddKey}>Add a key now</button></>}
+            </p>
+          )}
 
           <div className="samples">
-            <p>No export at hand? Try a sample file. The data is made up.</p>
+            <p>No export at hand? Try a sample file. The data is made up.{web ? " Samples replay a recorded AI run, so they need no key." : ""}</p>
             <ul>
               {SAMPLES.map((s) => (
                 <li key={s.file}>
@@ -280,10 +290,18 @@ export function Home({ health, error, onFile, onSample }: Props) {
             <p>Flip a card to see how its number was made: the calculation, the columns, the period and the rows it used.</p>
           </li>
         </ol>
-        <p className="how-foot">
-          {health.state === "ok" ? `Model: ${health.model}. ` : ""}The summary and the computed results go to Gemini (Google) through the local
-          server, which holds your key. Nothing is stored.
-        </p>
+        {web ? (
+          <p className="how-foot">
+            On this site there is no Anywrap server. The samples replay the AI's answers from a real Gemini run, recorded so they
+            work without a key; reading, computing and checking still run live in your browser. Your own files use your own
+            Gemini key ({health.state === "ok" ? health.model : "Gemini"}), sent from your browser straight to Google with the summary and the computed results. Nothing is stored.
+          </p>
+        ) : (
+          <p className="how-foot">
+            {health.state === "ok" ? `Model: ${health.model}. ` : ""}The summary and the computed results go to Gemini (Google) through the local
+            server, which holds your key. Nothing is stored.
+          </p>
+        )}
       </section>
     </div>
   );

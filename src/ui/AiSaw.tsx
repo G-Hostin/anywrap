@@ -51,6 +51,7 @@ export function AiSaw({ story, onClose }: { story: Story; onClose: () => void })
           The AI never received your file. It saw a summary (column names, detected types, ranges and 5 example rows),
           picked calculations from a fixed menu, and wrote captions from the computed results. A checker then compared
           every number in the captions with those results.
+          {story.replay && ` Sample mode: the AI's answers on this page were replayed from a real ${story.replay.model} run recorded on ${story.replay.recordedAt} (times read in ${story.replay.timeZone}, as in that run); the texts below are what this browser computed and would send.`}
           {story.sent.caught.length > 0 && ` On this file it caught ${story.sent.caught.length} problem${story.sent.caught.length > 1 ? "s" : ""} in the first draft of the captions, and they were rewritten.`}
         </p>
         <Block title="1. Sent to plan the story" note={`${kb(planBytes)} · indented for reading`} text={pretty(story.sent.plan)} />

@@ -10,7 +10,7 @@ export const SAMPLES: Sample[] = [
 ];
 
 export async function loadSample(s: Sample): Promise<{ name: string; text: string; bytes: number }> {
-  const res = await fetch(`/samples/${s.file}`);
+  const res = await fetch(`${import.meta.env.BASE_URL}samples/${s.file}`);
   if (!res.ok) throw new Error(`Couldn't load the sample ${s.file}.`);
   const text = await res.text();
   return { name: s.file, text, bytes: new Blob([text]).size };

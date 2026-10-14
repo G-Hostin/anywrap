@@ -1,4 +1,4 @@
-// Shared shapes. The Plan and Copy shapes mirror the JSON schemas in server/prompts.ts.
+// Shared shapes. The Plan and Copy shapes mirror the JSON schemas in src/ai/prompts.ts.
 
 export type Table = {
   name: string;
@@ -137,4 +137,6 @@ export type Story = {
   sent: { plan: string; planReply: string; write: string; repairs: number; rewrites: number; caught: { id: string; field: string; text: string; issue: string }[] };
   dropped: string[];
   seconds: number;
+  /** web build, samples only: the AI's answers were replayed from a recorded run */
+  replay?: { model: string; recordedAt: string; timeZone: string };
 };

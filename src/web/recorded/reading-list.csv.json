@@ -1,0 +1,231 @@
+{
+ "sample": "reading-list.csv",
+ "model": "gemini-3.5-flash-lite",
+ "recordedAt": "2026-10-13",
+ "timeZone": "Europe/Paris",
+ "plan": {
+  "dataset": {
+   "source": "Goodreads reading list export",
+   "row_means": "One book in the reading list",
+   "subject": "Reading habits and completed books",
+   "confidence": "high"
+  },
+  "period": {
+   "date": "Date Read",
+   "from": "2025-01-01",
+   "to": "2025-12-31",
+   "label": "2025"
+  },
+  "derive": [],
+  "fields": [
+   {
+    "col": "Number of Pages",
+    "type": "number",
+    "unit": "pages"
+   },
+   {
+    "col": "My Rating",
+    "type": "number",
+    "unit": "/5"
+   },
+   {
+    "col": "Date Read",
+    "type": "date"
+   },
+   {
+    "col": "Date Added",
+    "type": "date"
+   },
+   {
+    "col": "Author",
+    "type": "text"
+   },
+   {
+    "col": "Binding",
+    "type": "text"
+   },
+   {
+    "col": "Title",
+    "type": "text"
+   },
+   {
+    "col": "Exclusive Shelf",
+    "type": "text"
+   }
+  ],
+  "exclude": [
+   {
+    "col": "Exclusive Shelf",
+    "op": "eq",
+    "value": "to-read"
+   }
+  ],
+  "slides": [
+   {
+    "id": "card-1",
+    "op": "total",
+    "angle": "Total books finished this year",
+    "where": [
+     {
+      "col": "Exclusive Shelf",
+      "op": "eq",
+      "value": "read"
+     }
+    ]
+   },
+   {
+    "id": "card-2",
+    "op": "total",
+    "angle": "Total pages turned",
+    "measure": "Number of Pages",
+    "where": [
+     {
+      "col": "Exclusive Shelf",
+      "op": "eq",
+      "value": "read"
+     }
+    ]
+   },
+   {
+    "id": "card-3",
+    "op": "top",
+    "angle": "Your most read authors",
+    "group": "Author",
+    "by": "count",
+    "k": 3,
+    "where": [
+     {
+      "col": "Exclusive Shelf",
+      "op": "eq",
+      "value": "read"
+     }
+    ]
+   },
+   {
+    "id": "card-4",
+    "op": "record",
+    "angle": "Your longest book read",
+    "measure": "Number of Pages",
+    "dir": "max",
+    "show": [
+     "Title",
+     "Author"
+    ],
+    "where": [
+     {
+      "col": "Exclusive Shelf",
+      "op": "eq",
+      "value": "read"
+     }
+    ]
+   },
+   {
+    "id": "card-5",
+    "op": "timeline",
+    "angle": "Reading rhythm across the months",
+    "date": "Date Read",
+    "by": "count",
+    "unit": "month",
+    "where": [
+     {
+      "col": "Exclusive Shelf",
+      "op": "eq",
+      "value": "read"
+     }
+    ]
+   },
+   {
+    "id": "card-6",
+    "op": "top",
+    "angle": "Preferred book binding format",
+    "group": "Binding",
+    "by": "count",
+    "k": 3,
+    "where": [
+     {
+      "col": "Exclusive Shelf",
+      "op": "eq",
+      "value": "read"
+     }
+    ]
+   },
+   {
+    "id": "card-7",
+    "op": "average",
+    "angle": "Average page count per book",
+    "measure": "Number of Pages",
+    "stat": "mean",
+    "where": [
+     {
+      "col": "Exclusive Shelf",
+      "op": "eq",
+      "value": "read"
+     }
+    ]
+   }
+  ],
+  "palette": "dusk"
+ },
+ "copy": {
+  "opener": {
+   "title": "Your Year In Books",
+   "line": "Let us look back at your reading journey."
+  },
+  "slides": [
+   {
+    "id": "card-1",
+    "kicker": "Books Finished",
+    "big": "25",
+    "line": "You wrapped up a solid stack of reads this year.",
+    "sub": "That is quite the reading marathon."
+   },
+   {
+    "id": "card-6",
+    "kicker": "Favorite Binding",
+    "big": "Paperback",
+    "line": "You clearly prefer holding a traditional book in your hands.",
+    "sub": "Paperbacks led the way on your shelves."
+   },
+   {
+    "id": "card-7",
+    "kicker": "Average Length",
+    "big": "551 pages",
+    "line": "You do not shy away from a lengthy journey.",
+    "sub": "Every single story gave you plenty to chew on."
+   },
+   {
+    "id": "card-5",
+    "kicker": "Peak Month",
+    "big": "June",
+    "line": "Your page turning hit a high during the summer.",
+    "sub": "You finished 6 books right then."
+   },
+   {
+    "id": "card-3",
+    "kicker": "Top Author",
+    "big": "Jane Austen",
+    "line": "You spent plenty of time visiting her classic Regency world.",
+    "sub": "You picked up 4 of her timeless stories."
+   },
+   {
+    "id": "card-2",
+    "kicker": "Total Pages",
+    "big": "13,770 pages",
+    "line": "You turned a massive pile of pages this year.",
+    "sub": "That is a huge journey across many chapters."
+   },
+   {
+    "id": "card-4",
+    "kicker": "Longest Read",
+    "big": "1,463 pages",
+    "line": "You finished Les Miserables, Victor Hugo on Sat, Aug 30.",
+    "sub": "A towering epic of storytelling."
+   }
+  ],
+  "persona": {
+   "name": "Dedicated Classic Reader",
+   "why": "You spent the year diving deep into timeless literature."
+  },
+  "skipped": []
+ }
+}

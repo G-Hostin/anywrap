@@ -43,7 +43,7 @@
   <h2>What it is, in four pieces</h2>
   <ul>
     <li><strong>The browser</strong> reads the export file, writes a short summary, runs the AI's plan on every row and plays the story. The file never leaves it; only the summary (with 5 example rows) does.</li>
-    <li><strong>A small local server</strong> (<code>server/</code>) holds the API key and the fixed prompts, and forwards two kinds of small JSON requests to Gemini.</li>
+    <li><strong>A small local server</strong> (<code>server/</code>) holds the API key and forwards two kinds of small JSON requests to Gemini, with the fixed prompts from <code>src/ai/</code>. The web version (<a href="https://g-hostin.github.io/anywrap/">g-hostin.github.io/anywrap</a>) has no server: samples replay recorded AI answers, and a visitor's own file uses their own key, sent from their browser to Google.</li>
     <li><strong>The AI</strong> is called twice: once to plan (what is this file, which calculations from a fixed menu), once to write captions from computed results.</li>
     <li><strong>The number checker</strong> (<code>src/engine/check.ts</code>) rejects any caption number that the calculations didn't produce.</li>
   </ul>
@@ -93,7 +93,7 @@
   <table>
     <tr><th>You want to…</th><th>Start in</th></tr>
     <tr><td>Add a calculation to the menu</td><td><code>src/engine/types.ts</code> (<code>Op</code>), <code>src/engine/run.ts</code> (<code>runSlide</code> switch), <code>server/prompts.ts</code> (planner text and the <code>op</code> enum in <code>PLAN_SCHEMA</code>), <code>src/engine/check.ts</code> (<code>templateCaption</code>), then a test in <code>tests/engine.test.ts</code>.</td></tr>
-    <tr><td>Change what the AI is told</td><td><code>server/prompts.ts</code>. Keep the schema flat: the API rejected optional fields and unions as “compiled grammar too large”; <code>src/engine/plan.ts</code> cleans the flat answer.</td></tr>
+    <tr><td>Change what the AI is told</td><td><code>src/ai/prompts.ts</code>. Keep the schema flat: the API rejected optional fields and unions as “compiled grammar too large”; <code>src/engine/plan.ts</code> cleans the flat answer.</td></tr>
     <tr><td>Change colors</td><td><code>src/ui/palettes.ts</code> (five named duotone palettes the AI picks from).</td></tr>
     <tr><td>Change a chart</td><td><code>src/ui/charts.tsx</code> (bars, ranked list, month calendar, ring).</td></tr>
     <tr><td>Change the receipt</td><td><code>src/ui/Receipt.tsx</code>. Its content comes from <code>receipt</code> in <code>runSlide</code>.</td></tr>

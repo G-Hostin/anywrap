@@ -64,7 +64,7 @@ PRD ref: `prd.md > The Core Journey`.
   `npm run build && npm start` serves the production build on the same port.
 - Pitfall on this machine: the shell exports `NODE_ENV=production`, which makes `npm install` skip devDependencies. Install with `NODE_ENV=development npm install`. The server never reads `NODE_ENV`; dev mode is the explicit `--dev` flag.
 - Demo recording: `npm start`, browser window at 1280×720 or larger, the three demo samples (running log, bank account, sleep diary).
-- Deployment: none for the PoC (the video and the public repository are what the rules require). A public deployment would expose the key or need a bring-your-own-key flow; deferred in the PRD.
+- Deployment: added after submission (14 Oct, Gregory's go-ahead): a static web build on GitHub Pages, https://g-hostin.github.io/anywrap/, published by `.github/workflows/pages.yml` after `npm test`. No server and no key behind it: samples replay the plan and captions recorded from a real Gemini run (everything else is computed live), and a visitor's own file uses their own Gemini key, sent from their browser straight to Google (CSP `connect-src` limited to the Gemini API). The local app is unchanged.
 - Public repository: https://github.com/G-Hostin/anywrap (published 13 Oct 2026 with Gregory's go-ahead; MIT license; commit emails use the GitHub no-reply address). Demo video: https://youtu.be/FXQMAKq2Nk4 (2:20, public on YouTube, uploaded 14 Oct 2026; also linked from the README and the repository homepage).
 
 ## Look and Feel
@@ -149,7 +149,7 @@ PRD ref: `prd.md > Understanding the file (AI, step 1)`.
 - Drops cards that still fail; fewer than 3 usable cards is a "no story" error.
 - PRD ref: `prd.md > The Core Journey`.
 
-### Local server — `server/index.ts`, `server/gemini.ts`, `server/prompts.ts`
+### Local server — `server/index.ts`, `server/gemini.ts` (the call itself and the prompts: `src/ai/gemini.ts`, `src/ai/prompts.ts`, shared with the web build)
 - `GET /api/health` returns `{ hasKey, model }`.
 - `POST /api/plan` takes `{ summary, repair? }`; `POST /api/write` takes `{ facts, problems? }`.
 - Bodies over 64 KB get a 413. Each call has a 60 s timeout. Errors are returned as `{ error }` without upstream headers. The key is loaded from `.env` (`process.loadEnvFile`) and never logged.
@@ -208,13 +208,21 @@ projet/
 ├── .env.example               # GEMINI_API_KEY=, GEMINI_MODEL=
 ├── LICENSE                    # MIT
 ├── README.md                  # what it is, run instructions, how the kernel works
+├── .github/workflows/pages.yml # tests, then publishes the web build to GitHub Pages
 ├── server/
 │   ├── index.ts               # node:http server, routes, static or Vite middleware
-│   ├── gemini.ts              # generateContent call with schema, timeout, retry on 429/503, clean errors
-│   └── prompts.ts             # planner and writer prompts, JSON schemas
+│   └── gemini.ts              # key from .env, AI errors → HTTP statuses
 ├── src/
 │   ├── main.tsx
-│   ├── App.tsx                # screen state machine
+│   ├── App.tsx                # screen state machine (local app, or web build with --mode web)
+│   ├── ai/
+│   │   ├── gemini.ts          # generateContent call with schema, timeout, retry on 429/503, clean errors
+│   │   └── prompts.ts         # planner and writer prompts, JSON schemas
+│   ├── web/                   # web build only
+│   │   ├── api.ts             # visitor's key → Gemini from the browser; replay of recorded answers
+│   │   ├── key.ts             # where the visitor's key is kept (tab or device)
+│   │   ├── recorded.ts        # loads src/web/recorded/<sample>.json
+│   │   └── recorded/          # plan + captions from a real Gemini run, per sample (npm run record)
 │   ├── pipeline.ts            # file → story orchestration
 │   ├── styles.css
 │   ├── engine/

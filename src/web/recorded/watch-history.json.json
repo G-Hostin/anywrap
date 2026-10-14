@@ -1,0 +1,195 @@
+{
+ "sample": "watch-history.json",
+ "model": "gemini-3.5-flash-lite",
+ "recordedAt": "2026-10-13",
+ "timeZone": "Europe/Paris",
+ "plan": {
+  "dataset": {
+   "source": "YouTube watch history",
+   "row_means": "A watched YouTube video",
+   "subject": "Watching habits",
+   "confidence": "high"
+  },
+  "period": {
+   "date": "time",
+   "from": "2025-01-01",
+   "to": "2025-12-31",
+   "label": "2025"
+  },
+  "derive": [
+   {
+    "name": "CleanTitle",
+    "from": "title",
+    "op": "strip_prefix",
+    "arg": "Watched ",
+    "replacement": ""
+   }
+  ],
+  "fields": [
+   {
+    "col": "time",
+    "type": "date"
+   },
+   {
+    "col": "subtitles.name",
+    "type": "text"
+   },
+   {
+    "col": "header",
+    "type": "text"
+   },
+   {
+    "col": "CleanTitle",
+    "type": "text"
+   }
+  ],
+  "exclude": [
+   {
+    "col": "details.name",
+    "op": "eq",
+    "value": "From Google Ads"
+   }
+  ],
+  "slides": [
+   {
+    "id": "total_videos",
+    "op": "total",
+    "angle": "Total videos watched in 2025"
+   },
+   {
+    "id": "top_channels",
+    "op": "top",
+    "angle": "Your favorite channels",
+    "group": "subtitles.name",
+    "by": "count",
+    "k": 5,
+    "where": [
+     {
+      "col": "subtitles.name",
+      "op": "not_empty"
+     }
+    ]
+   },
+   {
+    "id": "watch_timeline",
+    "op": "timeline",
+    "angle": "Your monthly viewing rhythm",
+    "date": "time",
+    "by": "count",
+    "unit": "month"
+   },
+   {
+    "id": "peak_viewing_day",
+    "op": "peak_day",
+    "angle": "Your most active day on YouTube",
+    "date": "time",
+    "by": "count",
+    "show": [
+     "CleanTitle"
+    ]
+   },
+   {
+    "id": "viewing_streak",
+    "op": "streak",
+    "angle": "Your longest daily viewing streak",
+    "date": "time"
+   },
+   {
+    "id": "unique_creators",
+    "op": "distinct",
+    "angle": "Creators and channels explored",
+    "group": "subtitles.name",
+    "where": [
+     {
+      "col": "subtitles.name",
+      "op": "not_empty"
+     }
+    ]
+   },
+   {
+    "id": "weekly_rhythm",
+    "op": "timeline",
+    "angle": "Which days of the week you watch most",
+    "date": "time",
+    "by": "count",
+    "unit": "weekday"
+   },
+   {
+    "id": "youtube_vs_music",
+    "op": "top",
+    "angle": "Platforms you enjoyed",
+    "group": "header",
+    "by": "count",
+    "k": 2
+   }
+  ],
+  "palette": "neon"
+ },
+ "copy": {
+  "opener": {
+   "title": "Your 2025 YouTube Year",
+   "line": "Let's look back at your year of watching videos."
+  },
+  "slides": [
+   {
+    "id": "total_videos",
+    "kicker": "Total watch count",
+    "big": "2,355",
+    "line": "You watched 2,355 videos across the year.",
+    "sub": "That's a lot of screen time."
+   },
+   {
+    "id": "youtube_vs_music",
+    "kicker": "Platform choice",
+    "big": "YouTube",
+    "line": "YouTube took up 2,171 of your views.",
+    "sub": "YouTube Music added 184 more."
+   },
+   {
+    "id": "top_channels",
+    "kicker": "Top channel",
+    "big": "Kitchen Lab",
+    "line": "Kitchen Lab captured your attention most.",
+    "sub": "You watched 523 videos there."
+   },
+   {
+    "id": "weekly_rhythm",
+    "kicker": "Weekly rhythm",
+    "big": "Saturday",
+    "line": "Saturday stood out as your biggest viewing day.",
+    "sub": "Thursday was the quietest with 264 videos."
+   },
+   {
+    "id": "watch_timeline",
+    "kicker": "Monthly rhythm",
+    "big": "December",
+    "line": "December peaked as your busiest month.",
+    "sub": "February dipped to 161 videos."
+   },
+   {
+    "id": "peak_viewing_day",
+    "kicker": "Busiest day",
+    "big": "Sun, Dec 21",
+    "line": "Sun, Dec 21 marked your most active day.",
+    "sub": "You watched 15 videos then."
+   },
+   {
+    "id": "viewing_streak",
+    "kicker": "Daily streak",
+    "big": "365",
+    "line": "You kept a 365 day streak going.",
+    "sub": "You watched every single day."
+   }
+  ],
+  "persona": {
+   "name": "Dedicated Video Binger",
+   "why": "You watched every single day without missing a beat."
+  },
+  "skipped": [
+   {
+    "id": "unique_creators",
+    "reason": "Redundant creator count details."
+   }
+  ]
+ }
+}

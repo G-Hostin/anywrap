@@ -1,0 +1,182 @@
+{
+ "sample": "sleep-diary.csv",
+ "model": "gemini-3.5-flash-lite",
+ "recordedAt": "2026-10-13",
+ "timeZone": "Europe/Paris",
+ "plan": {
+  "dataset": {
+   "source": "Sleep diary app export",
+   "row_means": "One night of sleep with times, duration, and quality ratings",
+   "subject": "Personal sleep habits",
+   "confidence": "high"
+  },
+  "period": {
+   "date": "date",
+   "from": "2025-03-02",
+   "to": "2025-12-31",
+   "label": "2025"
+  },
+  "derive": [],
+  "fields": [
+   {
+    "col": "date",
+    "type": "date",
+    "order": "DMY"
+   },
+   {
+    "col": "coucher",
+    "type": "time_of_day"
+   },
+   {
+    "col": "réveil",
+    "type": "time_of_day"
+   },
+   {
+    "col": "durée (h)",
+    "type": "number",
+    "decimal": ",",
+    "unit": "h"
+   },
+   {
+    "col": "qualité (1-5)",
+    "type": "number",
+    "unit": "/5"
+   },
+   {
+    "col": "réveils nocturnes",
+    "type": "number"
+   },
+   {
+    "col": "café après 16h",
+    "type": "boolean",
+    "true_values": [
+     "oui"
+    ]
+   },
+   {
+    "col": "notes",
+    "type": "text"
+   }
+  ],
+  "exclude": [],
+  "slides": [
+   {
+    "id": "total_nights",
+    "op": "total",
+    "angle": "Nights logged in 2025"
+   },
+   {
+    "id": "avg_duration",
+    "op": "average",
+    "angle": "Average hours of rest per night",
+    "measure": "durée (h)",
+    "stat": "mean"
+   },
+   {
+    "id": "avg_wake",
+    "op": "average",
+    "angle": "Typical morning wake-up time",
+    "measure": "réveil",
+    "stat": "mean"
+   },
+   {
+    "id": "sleep_streak",
+    "op": "streak",
+    "angle": "Longest consecutive logging streak",
+    "date": "date"
+   },
+   {
+    "id": "weekly_sleep",
+    "op": "timeline",
+    "angle": "Average sleep duration by weekday",
+    "measure": "durée (h)",
+    "date": "date",
+    "by": "mean",
+    "unit": "weekday"
+   },
+   {
+    "id": "coffee_impact",
+    "op": "compare",
+    "angle": "Sleep quality with and without afternoon coffee",
+    "measure": "qualité (1-5)",
+    "group": "café après 16h",
+    "min_rows": 5
+   },
+   {
+    "id": "uninterrupted_share",
+    "op": "share",
+    "angle": "Proportion of nights with zero awakenings",
+    "match": [
+     {
+      "col": "réveils nocturnes",
+      "op": "eq",
+      "value": "0"
+     }
+    ]
+   }
+  ],
+  "palette": "tide"
+ },
+ "copy": {
+  "opener": {
+   "title": "Your 2025 Sleep Story",
+   "line": "Let's check out your rest habits and morning wake times."
+  },
+  "slides": [
+   {
+    "id": "total_nights",
+    "kicker": "Logging habit",
+    "big": "266",
+    "line": "You tracked your sleep across 266 nights.",
+    "sub": "You kept a remarkably steady logging routine."
+   },
+   {
+    "id": "avg_duration",
+    "kicker": "Nightly rest",
+    "big": "7.6 h",
+    "line": "You averaged 7.6 h of sleep per night.",
+    "sub": "That makes for a well-rested year."
+   },
+   {
+    "id": "avg_wake",
+    "kicker": "Morning routine",
+    "big": "7:17 AM",
+    "line": "Your typical morning wake-up time landed at 7:17 AM.",
+    "sub": "Early mornings suit you well."
+   },
+   {
+    "id": "weekly_sleep",
+    "kicker": "Weekday rhythms",
+    "big": "Friday",
+    "line": "Friday brought your peak rest averaging 7.7 h.",
+    "sub": "Tuesday dipped to a low of 7.4 h."
+   },
+   {
+    "id": "sleep_streak",
+    "kicker": "Tracking streak",
+    "big": "25",
+    "line": "Your longest consecutive logging streak reached 25 days.",
+    "sub": "Running from Fri, Jun 13 to Mon, Jul 7."
+   },
+   {
+    "id": "coffee_impact",
+    "kicker": "Caffeine check",
+    "big": "0.8 points",
+    "line": "Your sleep quality varied by 0.8 points overall.",
+    "sub": "Nights with a coffee after 4 PM averaged 3.2/5."
+   },
+   {
+    "id": "uninterrupted_share",
+    "kicker": "Peaceful rest",
+    "big": "21%",
+    "line": "You reached uninterrupted rest on 21% of your nights.",
+    "sub": "That happened across 55 peaceful nights."
+   }
+  ],
+  "persona": {
+   "name": "Steady Sleep Tracker",
+   "why": "You logged 266 nights and kept a close eye on your rest."
+  },
+  "skipped": []
+ }
+}

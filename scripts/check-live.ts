@@ -50,7 +50,7 @@ for (const f of files) {
     if (story.dropped.length) console.log(`  dropped: ${story.dropped.join(" | ")}`);
     if (final.length) console.log(`  CHECKER: ${final.map((p) => `${p.id}.${p.field}: ${p.issue}`).join(" | ")}`);
     if (story.cards.length < 6) console.log(`  only ${story.cards.length} cards`);
-    writeFileSync(new URL(`scripts/.live/${name}.json`, ROOT), JSON.stringify(story, null, 2));
+    writeFileSync(new URL(`scripts/.live/${name}.json`, ROOT), JSON.stringify({ ...story, model: ai.MODEL }, null, 2));
   } catch (e) {
     failed++;
     console.log(`\nFAIL  ${name}: ${(e as Error).message}`);

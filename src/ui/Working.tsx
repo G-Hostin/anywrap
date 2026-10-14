@@ -15,13 +15,14 @@ type Props = {
   fileSize: number;
   steps: Step[];
   error: string;
+  replay?: boolean;
   onCancel: () => void;
   onRetry: () => void;
   onHome: () => void;
 };
 
 
-export function Working({ fileName, fileSize, steps, error, onCancel, onRetry, onHome }: Props) {
+export function Working({ fileName, fileSize, steps, error, replay, onCancel, onRetry, onHome }: Props) {
   const byId = new Map(steps.map((s) => [s.id, s]));
   const guess = steps.find((s) => s.guess)?.guess;
   const current = ORDER.find((id) => byId.get(id)?.state !== "done");
@@ -61,6 +62,7 @@ export function Working({ fileName, fileSize, steps, error, onCancel, onRetry, o
           </div>
         </div>
         </div>
+        {replay && !error && <p className="replay-note">Sample mode: the AI's answers are replayed from a recorded run. Reading, computing and checking run live in this browser.</p>}
         {error ? (
           <div className="working-error" role="alert">
             <p>{error}</p>

@@ -1,0 +1,174 @@
+{
+ "sample": "running-log.csv",
+ "model": "gemini-3.5-flash-lite",
+ "recordedAt": "2026-10-13",
+ "timeZone": "Europe/Paris",
+ "plan": {
+  "dataset": {
+   "source": "Fitness activity log export",
+   "row_means": "One recorded workout session",
+   "subject": "user",
+   "confidence": "high"
+  },
+  "period": {
+   "date": "Activity Date",
+   "from": "2025-01-01",
+   "to": "2025-12-31",
+   "label": "2025"
+  },
+  "derive": [],
+  "fields": [
+   {
+    "col": "Activity Date",
+    "type": "date",
+    "order": "MDY"
+   },
+   {
+    "col": "Distance",
+    "type": "number",
+    "decimal": ".",
+    "unit": "km"
+   },
+   {
+    "col": "Calories",
+    "type": "number",
+    "unit": "kcal"
+   },
+   {
+    "col": "Activity Type",
+    "type": "text"
+   }
+  ],
+  "exclude": [],
+  "slides": [
+   {
+    "id": "total_distance",
+    "op": "total",
+    "angle": "Total distance covered",
+    "measure": "Distance"
+   },
+   {
+    "id": "total_workouts",
+    "op": "total",
+    "angle": "Workouts logged"
+   },
+   {
+    "id": "top_types",
+    "op": "top",
+    "angle": "Your favorite ways to move",
+    "group": "Activity Type",
+    "by": "count",
+    "k": 3
+   },
+   {
+    "id": "record_distance",
+    "op": "record",
+    "angle": "Your longest single adventure",
+    "measure": "Distance",
+    "dir": "max",
+    "show": [
+     "Activity Name"
+    ]
+   },
+   {
+    "id": "monthly_rhythm",
+    "op": "timeline",
+    "angle": "Your distance across months",
+    "measure": "Distance",
+    "date": "Activity Date",
+    "by": "sum",
+    "unit": "month"
+   },
+   {
+    "id": "peak_day",
+    "op": "peak_day",
+    "angle": "Your busiest day of movement",
+    "measure": "Distance",
+    "date": "Activity Date",
+    "by": "sum"
+   },
+   {
+    "id": "streak",
+    "op": "streak",
+    "angle": "Longest daily activity streak",
+    "date": "Activity Date"
+   },
+   {
+    "id": "total_calories",
+    "op": "total",
+    "angle": "Total energy burned",
+    "measure": "Calories"
+   }
+  ],
+  "palette": "ember"
+ },
+ "copy": {
+  "opener": {
+   "title": "Your 2025 in Motion",
+   "line": "Let's look back at how you moved through 2025."
+  },
+  "slides": [
+   {
+    "id": "total_distance",
+    "kicker": "Epic Distance",
+    "big": "2,350 km",
+    "line": "You covered a massive distance across your workouts this year.",
+    "sub": "Logged across 181 sessions."
+   },
+   {
+    "id": "total_workouts",
+    "kicker": "Workout Count",
+    "big": "181",
+    "line": "You logged plenty of sessions to keep things moving.",
+    "sub": ""
+   },
+   {
+    "id": "top_types",
+    "kicker": "Favorite Movement",
+    "big": "Run",
+    "line": "Running was your absolute go-to choice all year long.",
+    "sub": "It led the pack across 4 styles with a 73% share."
+   },
+   {
+    "id": "record_distance",
+    "kicker": "Longest Adventure",
+    "big": "83.1 km",
+    "line": "Your Morning Ride on Sat, Sep 6 set the bar high.",
+    "sub": ""
+   },
+   {
+    "id": "monthly_rhythm",
+    "kicker": "Monthly Rhythm",
+    "big": "May",
+    "line": "May was your highest peak with 394 km covered.",
+    "sub": "February was the quietest month at 79.2 km."
+   },
+   {
+    "id": "peak_day",
+    "kicker": "Busiest Day",
+    "big": "Sat, Sep 6",
+    "line": "You pushed the hardest on this single autumn day.",
+    "sub": "You logged 83.1 km total."
+   },
+   {
+    "id": "streak",
+    "kicker": "Daily Streak",
+    "big": "19",
+    "line": "You built a solid habit starting Sun, Jan 5.",
+    "sub": "It kept going strong until Thu, Jan 23."
+   },
+   {
+    "id": "total_calories",
+    "kicker": "Energy Burned",
+    "big": "152,159 kcal",
+    "line": "You burned an impressive amount of energy overall.",
+    "sub": "Tracked across 181 sessions."
+   }
+  ],
+  "persona": {
+   "name": "Dedicated Endurance Athlete",
+   "why": "You logged 181 workouts and kept an active routine."
+  },
+  "skipped": []
+ }
+}
