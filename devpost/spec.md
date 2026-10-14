@@ -65,7 +65,7 @@ PRD ref: `prd.md > The Core Journey`.
 - Pitfall on this machine: the shell exports `NODE_ENV=production`, which makes `npm install` skip devDependencies. Install with `NODE_ENV=development npm install`. The server never reads `NODE_ENV`; dev mode is the explicit `--dev` flag.
 - Demo recording: `npm start`, browser window at 1280×720 or larger, the three demo samples (running log, bank account, sleep diary).
 - Deployment: none for the PoC (the video and the public repository are what the rules require). A public deployment would expose the key or need a bring-your-own-key flow; deferred in the PRD.
-- Public repository: https://github.com/G-Hostin/anywrap (published 13 Oct 2026 with Gregory's go-ahead; MIT license; commit emails use the GitHub no-reply address). Demo video link: to add once uploaded.
+- Public repository: https://github.com/G-Hostin/anywrap (published 13 Oct 2026 with Gregory's go-ahead; MIT license; commit emails use the GitHub no-reply address). Demo video: https://youtu.be/FXQMAKq2Nk4 (2:20, public on YouTube, uploaded 14 Oct 2026; also linked from the README and the repository homepage).
 
 ## Look and Feel
 From `prd.md > Look and Feel`.
