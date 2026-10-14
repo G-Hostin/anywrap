@@ -2,6 +2,8 @@
 
 Drop a personal data export (a running log, a bank CSV, a watch history, a sleep diary from any app) and flip through a year-in-review story. The AI picks the story; your browser computes every number, and each number comes with a receipt.
 
+**Demo video (2:20):** https://youtu.be/FXQMAKq2Nk4
+
 Built for [Build With AI: Basics](https://learn-ai-basics.devpost.com/) (Devpost) with the [Devpost Learn skill pack](https://github.com/challengepost/learn-ai-basics). The planning documents are in [`devpost/`](devpost/): [scope](devpost/scope.md), [PRD](devpost/prd.md), [spec](devpost/spec.md) and the [build checklist](devpost/checklist.md).
 
 ## How it works
