@@ -97,7 +97,7 @@ export function StoryView({ story, onRestart }: { story: Story; onRestart: () =>
       <header className="stage-top">
         <div className="brand">
           <span className="wordmark">Anywrap</span>
-          <span className="file">{story.file.name}{story.replay ? " · sample, recorded AI run" : ""}</span>
+          <span className="file" title={story.replay ? "Sample: the AI's answers are replayed from a recorded run" : undefined}>{story.file.name}{story.replay ? " · recorded run" : ""}</span>
         </div>
         <div className="top-actions">
           <button className="pill ghost" onClick={() => setSaw(true)}>What the AI saw</button>
